@@ -33,6 +33,16 @@ const REQUIRED_FIELDS: (keyof PluginItem)[] = [
   'readme',
 ];
 
+export const POPULAR_STARS_THRESHOLD = 500;
+
+export function isMostPopularPlugin(
+  stars: unknown,
+  threshold: number = POPULAR_STARS_THRESHOLD
+): boolean {
+  const num = Number(stars);
+  return Number.isFinite(num) && num > threshold;
+}
+
 export function escapeHtml(str: unknown): string {
   return String(str ?? '')
     .replace(/&/g, '&amp;')

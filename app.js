@@ -15,6 +15,15 @@ const state = {
 };
 
 const BASE_CATEGORIES = ['All', 'Automation', 'UI', 'CLI', 'API'];
+export const POPULAR_STARS_THRESHOLD = 500;
+
+/**
+ * Returns true when a plugin's star count exceeds the Most Popular community threshold (default: 500).
+ */
+export function isMostPopularPlugin(stars, threshold = POPULAR_STARS_THRESHOLD) {
+  const num = Number(stars);
+  return Number.isFinite(num) && num > threshold;
+}
 
 /**
  * Inline Lucide SVG definitions for zero-latency rendering & offline resilience,
@@ -475,6 +484,15 @@ function renderPluginGrid() {
             .join('<span class="text-slate-300 dark:text-slate-700 select-none" aria-hidden="true">·</span>')
         : '';
 
+      const isPopular = isMostPopularPlugin(plugin.stars);
+      const popularBadgeMarkup = isPopular
+        ? `<span
+            data-testid="most-popular-badge-${escapeHtml(plugin.id)}"
+            class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-mono font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-md whitespace-nowrap shrink-0"
+            title="Community favorite exceeding ${POPULAR_STARS_THRESHOLD} stars"
+          >Most Popular</span>`
+        : '';
+
       return `
         <article
           data-plugin-card="${escapeHtml(plugin.id)}"
@@ -501,11 +519,14 @@ function renderPluginGrid() {
               </span>
             </div>
 
-            <!-- Plugin Title & Description -->
+            <!-- Plugin Title, Most Popular Badge & Description -->
             <div class="space-y-1.5">
-              <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                ${escapeHtml(plugin.name)}
-              </h2>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+                  ${escapeHtml(plugin.name)}
+                </h2>
+                ${popularBadgeMarkup}
+              </div>
               <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 ${escapeHtml(plugin.description)}
               </p>
@@ -594,7 +615,8 @@ function openDocsModal(pluginId) {
   if (!modal) return;
 
   if (metaEl) {
-    metaEl.textContent = `${plugin.category} · v${plugin.version} · ★ ${formatStars(plugin.stars)} stars · Maintained by @${plugin.author}`;
+    const popularLabel = isMostPopularPlugin(plugin.stars) ? ' · Most Popular' : '';
+    metaEl.textContent = `${plugin.category} · v${plugin.version} · ★ ${formatStars(plugin.stars)} stars${popularLabel} · Maintained by @${plugin.author}`;
   }
   if (titleEl) {
     titleEl.textContent = plugin.name;

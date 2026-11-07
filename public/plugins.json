@@ -44,7 +44,7 @@
     "description": "Lightweight sliding-window rate limiter and token-bucket middleware for standard Fetch API handlers, Cloudflare Workers, and Deno Deploy.",
     "author": "priyapatel",
     "version": "1.5.4",
-    "stars": 945,
+    "stars": 380,
     "category": "API",
     "tags": ["rate-limit", "middleware", "cloudflare-workers", "token-bucket"],
     "installCommand": "npm install @forgehub/edge-rate-guard",

@@ -8,6 +8,8 @@ import {
   extractCategories,
   buildContributorPluginJson,
   renderMarkdownToHtml,
+  isMostPopularPlugin,
+  POPULAR_STARS_THRESHOLD,
   type PluginItem,
 } from './pluginCore';
 
@@ -37,6 +39,20 @@ test('plugins.json contains 4 realistic plugins adhering strictly to required sc
   assert.equal(invalidStarsCheck.valid, false);
 });
 
+test('isMostPopularPlugin accurately identifies plugins exceeding the 500 stars threshold', () => {
+  assert.equal(POPULAR_STARS_THRESHOLD, 500);
+  assert.equal(isMostPopularPlugin(501), true);
+  assert.equal(isMostPopularPlugin(2490), true);
+  assert.equal(isMostPopularPlugin(500), false);
+  assert.equal(isMostPopularPlugin(380), false);
+  assert.equal(isMostPopularPlugin(0), false);
+
+  const popularIds = samplePlugins
+    .filter((p) => isMostPopularPlugin(p.stars))
+    .map((p) => p.id);
+  assert.deepEqual(popularIds, ['gh-release-sentinel', 'cmdk-palette-lite', 'env-vault-sync']);
+});
+
 test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is "stars"', () => {
   const byStars = filterAndSortPlugins(samplePlugins, {
     searchQuery: '',
@@ -51,7 +67,7 @@ test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is
   );
   assert.deepEqual(
     byStars.map((p) => p.stars),
-    [2490, 1840, 1320, 945]
+    [2490, 1840, 1320, 380]
   );
 });
 
