@@ -17,9 +17,9 @@ const pluginsJsonPath = path.resolve(process.cwd(), 'plugins.json');
 const rawJson = fs.readFileSync(pluginsJsonPath, 'utf-8');
 const samplePlugins: PluginItem[] = JSON.parse(rawJson);
 
-test('plugins.json contains 4 realistic plugins adhering strictly to required schema including numeric stars', () => {
+test('plugins.json contains 5 realistic plugins adhering strictly to required schema including numeric stars', () => {
   assert.equal(Array.isArray(samplePlugins), true);
-  assert.equal(samplePlugins.length, 4);
+  assert.equal(samplePlugins.length, 5);
 
   for (const plugin of samplePlugins) {
     const validation = validatePluginSchema(plugin);
@@ -50,7 +50,12 @@ test('isMostPopularPlugin accurately identifies plugins exceeding the 500 stars 
   const popularIds = samplePlugins
     .filter((p) => isMostPopularPlugin(p.stars))
     .map((p) => p.id);
-  assert.deepEqual(popularIds, ['gh-release-sentinel', 'cmdk-palette-lite', 'env-vault-sync']);
+  assert.deepEqual(popularIds, [
+    'gh-find-skills',
+    'gh-release-sentinel',
+    'cmdk-palette-lite',
+    'env-vault-sync',
+  ]);
 });
 
 test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is "stars"', () => {
@@ -60,14 +65,20 @@ test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is
     activeTag: null,
     sortBy: 'stars',
   });
-  assert.equal(byStars.length, 4);
+  assert.equal(byStars.length, 5);
   assert.deepEqual(
     byStars.map((p) => p.id),
-    ['cmdk-palette-lite', 'gh-release-sentinel', 'env-vault-sync', 'edge-rate-guard']
+    [
+      'gh-find-skills',
+      'cmdk-palette-lite',
+      'gh-release-sentinel',
+      'env-vault-sync',
+      'edge-rate-guard',
+    ]
   );
   assert.deepEqual(
     byStars.map((p) => p.stars),
-    [2490, 1840, 1320, 380]
+    [38400, 2490, 1840, 1320, 380]
   );
 });
 
@@ -131,8 +142,9 @@ test('filterAndSortPlugins filters by category and activeTag accurately', () => 
 test('extractCategories returns counts for All, Automation, UI, CLI, and API', () => {
   const categories = extractCategories(samplePlugins);
   const allCat = categories.find((c) => c.name === 'All');
-  assert.equal(allCat?.count, 4);
-  for (const expected of ['Automation', 'UI', 'CLI', 'API']) {
+  assert.equal(allCat?.count, 5);
+  assert.equal(categories.find((c) => c.name === 'CLI')?.count, 2);
+  for (const expected of ['Automation', 'UI', 'API']) {
     const found = categories.find((c) => c.name === expected);
     assert.equal(found?.count, 1, `Expected category ${expected} to have count 1`);
   }

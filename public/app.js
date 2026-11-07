@@ -25,6 +25,10 @@ export function isMostPopularPlugin(stars, threshold = POPULAR_STARS_THRESHOLD) 
   return Number.isFinite(num) && num > threshold;
 }
 
+/**
+ * Inline Lucide SVG definitions for zero-latency rendering & offline resilience,
+ * paired with window.lucide.createIcons() when CDN script is active.
+ */
 const ICONS = {
   search:
     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
@@ -42,6 +46,9 @@ const ICONS = {
     '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
 };
 
+/**
+ * Escapes HTML special characters to prevent XSS when rendering dynamic JSON strings.
+ */
 function escapeHtml(str) {
   return String(str ?? '')
     .replace(/&/g, '&amp;')
@@ -60,6 +67,9 @@ function formatStars(stars) {
   return Math.floor(num).toLocaleString('en-US');
 }
 
+/**
+ * Copies text to clipboard using standard Clipboard API with textarea fallback for iframes.
+ */
 async function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try {
@@ -86,6 +96,9 @@ async function copyToClipboard(text) {
   return copied;
 }
 
+/**
+ * Displays a non-blocking, accessible toast notification at bottom-right.
+ */
 function showToast(title, detail = '') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -120,6 +133,9 @@ function showToast(title, detail = '') {
   }, 3200);
 }
 
+/**
+ * Pure filtering and sorting function matching src/utils/pluginCore.ts
+ */
 export function filterAndSortPlugins(plugins, currentState) {
   const query = (currentState.searchQuery || '').trim().toLowerCase();
   const category = (currentState.category || 'All').trim();
@@ -163,9 +179,13 @@ export function filterAndSortPlugins(plugins, currentState) {
   return sorted;
 }
 
+/**
+ * Parses Markdown string from plugin.readme into clean, semantic HTML with copyable code blocks.
+ */
 function formatInlineMarkdown(text) {
   const codeTokens = [];
 
+  // 1. Tokenize inline code spans first so inner characters (*, _, <tag>) are never altered
   const withPlaceholders = String(text ?? '').replace(/`([^`]+)`/g, (_match, code) => {
     const idx = codeTokens.length;
     codeTokens.push(
@@ -174,8 +194,10 @@ function formatInlineMarkdown(text) {
     return `\x00CODE_${idx}\x00`;
   });
 
+  // 2. Escape HTML on the remaining text
   let html = escapeHtml(withPlaceholders);
 
+  // 3. Links: [label](url)
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label, rawUrl) => {
     const url = String(rawUrl).trim();
     const isSafe = /^(https?:\/\/|mailto:|#|\/)/i.test(url);
@@ -183,11 +205,13 @@ function formatInlineMarkdown(text) {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:text-indigo-500">${label}</a>`;
   });
 
+  // 4. Bold + Italic: ***text***
   html = html.replace(
     /\*\*\*([^*]+)\*\*\*/g,
     '<strong class="font-semibold text-slate-900 dark:text-white"><em>$1</em></strong>'
   );
 
+  // 5. Bold: **text** or __text__
   html = html.replace(
     /\*\*([^*]+)\*\*/g,
     '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>'
@@ -197,11 +221,14 @@ function formatInlineMarkdown(text) {
     '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>'
   );
 
+  // 6. Italic: *text* or _text_
   html = html.replace(/\*([^*\n]+)\*/g, '<em class="italic">$1</em>');
   html = html.replace(/(^|\s)_([^_\n]+)_(?=\s|$|[.,!?:;])/g, '$1<em class="italic">$2</em>');
 
+  // 7. Strikethrough: ~~text~~
   html = html.replace(/~~([^~]+)~~/g, '<del class="line-through opacity-75">$1</del>');
 
+  // 8. Restore inline code tokens
   html = html.replace(/\x00CODE_(\d+)\x00/g, (_m, idx) => codeTokens[Number(idx)] || '');
 
   return html;
@@ -352,6 +379,9 @@ export function renderMarkdownToHtml(markdown) {
     .join('');
 }
 
+/**
+ * Renders the segmented category filter buttons with live counts.
+ */
 function renderCategoryFilters() {
   const container = document.getElementById('category-filters');
   if (!container) return;
@@ -392,6 +422,9 @@ function renderCategoryFilters() {
     .join('');
 }
 
+/**
+ * Renders the filtered plugin cards grid or empty state.
+ */
 function renderPluginGrid() {
   const grid = document.getElementById('plugin-grid');
   const emptyState = document.getElementById('empty-state');
@@ -466,6 +499,7 @@ function renderPluginGrid() {
           class="flex flex-col justify-between p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors space-y-5"
         >
           <div class="space-y-3">
+            <!-- Unboxed Typographic Metadata Line (Zero-Pill Discipline) -->
             <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="font-semibold text-indigo-600 dark:text-indigo-400">${escapeHtml(plugin.category)}</span>
@@ -485,6 +519,7 @@ function renderPluginGrid() {
               </span>
             </div>
 
+            <!-- Plugin Title, Most Popular Badge & Description -->
             <div class="space-y-1.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
@@ -497,16 +532,19 @@ function renderPluginGrid() {
               </p>
             </div>
 
+            <!-- Unboxed Interactive Tag Stream -->
             <div class="flex flex-wrap items-center gap-2 pt-1">
               ${tagsMarkup}
             </div>
           </div>
 
           <div class="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <!-- Install Command Snippet Preview -->
             <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 font-mono text-xs text-slate-800 dark:text-slate-200 overflow-x-auto">
               <code class="truncate select-all">${escapeHtml(plugin.installCommand)}</code>
             </div>
 
+            <!-- Card Action Buttons -->
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
                 <button
@@ -554,6 +592,9 @@ function renderPluginGrid() {
   }
 }
 
+/**
+ * Opens the View Source / Docs modal for a specific plugin ID.
+ */
 function openDocsModal(pluginId) {
   const plugin = state.plugins.find((p) => p.id === pluginId);
   if (!plugin) return;
@@ -637,6 +678,9 @@ function closeDocsModal() {
   state.activePluginId = null;
 }
 
+/**
+ * Opens & manages the "Submit a Plugin" contributor modal and live JSON builder.
+ */
 function readContributorFormObject() {
   const name = document.getElementById('contrib-name')?.value.trim() || '';
   const id = document.getElementById('contrib-id')?.value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-') || '';
@@ -695,6 +739,9 @@ function closeSubmitModal() {
   modal.classList.remove('flex');
 }
 
+/**
+ * Theme management (Dark default, toggles .dark on <html>).
+ */
 function applyTheme(theme) {
   state.theme = theme === 'light' ? 'light' : 'dark';
   const root = document.documentElement;
@@ -714,10 +761,13 @@ function applyTheme(theme) {
   try {
     localStorage.setItem('forgehub_theme', state.theme);
   } catch {
-    // Ignore storage errors
+    // Ignore storage errors in restricted sandboxes
   }
 }
 
+/**
+ * Fetches plugins dynamically from ./plugins.json in the repository root.
+ */
 async function loadPlugins() {
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
@@ -755,7 +805,11 @@ async function loadPlugins() {
   }
 }
 
+/**
+ * Wires all event listeners for search, filters, clipboard actions, modals, and theme switching.
+ */
 function initApp() {
+  // Hydrate static icons
   const searchIconSlot = document.getElementById('search-icon-slot');
   if (searchIconSlot) searchIconSlot.innerHTML = ICONS.search;
 
@@ -767,17 +821,20 @@ function initApp() {
   }
   applyTheme(savedTheme);
 
+  // Theme Toggle
   const themeBtn = document.getElementById('theme-toggle-btn');
   themeBtn?.addEventListener('click', () => {
     applyTheme(state.theme === 'dark' ? 'light' : 'dark');
   });
 
+  // Search Input
   const searchInput = document.getElementById('plugin-search');
   searchInput?.addEventListener('input', (e) => {
     state.searchQuery = e.target.value || '';
     renderPluginGrid();
   });
 
+  // Clear Search Button
   const clearSearchBtn = document.getElementById('clear-search-btn');
   clearSearchBtn?.addEventListener('click', () => {
     state.searchQuery = '';
@@ -788,12 +845,14 @@ function initApp() {
     renderPluginGrid();
   });
 
+  // Sort Selector
   const sortSelect = document.getElementById('plugin-sort');
   sortSelect?.addEventListener('change', (e) => {
     state.sortBy = e.target.value || 'featured';
     renderPluginGrid();
   });
 
+  // Category Filter Delegation
   const categoryContainer = document.getElementById('category-filters');
   categoryContainer?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-category]');
@@ -803,12 +862,14 @@ function initApp() {
     renderPluginGrid();
   });
 
+  // Clear Tag Filter
   const clearTagBtn = document.getElementById('clear-tag-btn');
   clearTagBtn?.addEventListener('click', () => {
     state.activeTag = null;
     renderPluginGrid();
   });
 
+  // Reset Filters from Empty State
   const resetFiltersBtn = document.getElementById('reset-filters-btn');
   resetFiltersBtn?.addEventListener('click', () => {
     state.searchQuery = '';
@@ -821,11 +882,13 @@ function initApp() {
     renderPluginGrid();
   });
 
+  // Retry Fetch Button
   const retryFetchBtn = document.getElementById('retry-fetch-btn');
   retryFetchBtn?.addEventListener('click', () => {
     loadPlugins();
   });
 
+  // Plugin Grid Delegation (Copy Install, View Source / Docs, Tag Click)
   const grid = document.getElementById('plugin-grid');
   grid?.addEventListener('click', async (e) => {
     const tagBtn = e.target.closest('button[data-tag]');
@@ -860,6 +923,7 @@ function initApp() {
     }
   });
 
+  // Docs Modal Handlers
   document.getElementById('close-docs-modal-btn')?.addEventListener('click', closeDocsModal);
   document.getElementById('footer-close-docs-btn')?.addEventListener('click', closeDocsModal);
   document.getElementById('docs-tab-readme')?.addEventListener('click', () => switchDocsModalTab('readme'));
@@ -880,6 +944,7 @@ function initApp() {
     showToast(`Copied ${plugin.id} manifest JSON`, 'Ready to paste into plugins.json');
   });
 
+  // Copy buttons inside rendered Markdown code blocks
   document.getElementById('docs-readme-panel')?.addEventListener('click', async (e) => {
     const codeCopyBtn = e.target.closest('button[data-copy-encoded]');
     if (!codeCopyBtn) return;
@@ -893,6 +958,7 @@ function initApp() {
     showToast('Copied documentation code block', decoded.split('\n')[0]);
   });
 
+  // Submit a Plugin Modal Handlers
   document.getElementById('open-submit-modal-btn')?.addEventListener('click', openSubmitModal);
   document.getElementById('empty-submit-plugin-btn')?.addEventListener('click', openSubmitModal);
   document.getElementById('schema-open-submit-btn')?.addEventListener('click', openSubmitModal);
@@ -964,6 +1030,7 @@ function initApp() {
     );
   });
 
+  // Backdrop click dismissal for modals
   const docsModal = document.getElementById('docs-modal');
   docsModal?.addEventListener('click', (e) => {
     if (e.target === docsModal) closeDocsModal();
@@ -974,6 +1041,7 @@ function initApp() {
     if (e.target === submitModal) closeSubmitModal();
   });
 
+  // Global Keyboard Shortcuts ('/' to focus search, 'Escape' to close modals)
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDocsModal();

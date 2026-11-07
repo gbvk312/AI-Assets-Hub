@@ -1,5 +1,18 @@
 [
   {
+    "id": "gh-find-skills",
+    "name": "Find Skills (skills.sh)",
+    "description": "The #1 most-installed GitHub agent skill from vercel-labs/skills. Autonomously discovers, searches, and installs SKILL.md capabilities across GitHub repositories via the npx skills CLI.",
+    "author": "vercel-labs",
+    "version": "1.4.5",
+    "stars": 38400,
+    "category": "CLI",
+    "tags": ["agent-skills", "skill-md", "github", "skills-sh", "cli"],
+    "installCommand": "npx skills add vercel-labs/skills --skill find-skills",
+    "downloadUrl": "https://github.com/vercel-labs/skills/archive/refs/heads/main.tar.gz",
+    "readme": "# Find Skills (`vercel-labs/skills`)\n\nThe **#1 most-used skill on GitHub** and the official discovery engine for the open [skills.sh](https://skills.sh) ecosystem (`38,400+` GitHub stars and `700k+` installations).\n\n> **Why it leads GitHub:** `find-skills` equips coding agents and developers with progressive-disclosure `SKILL.md` capabilities—allowing environments like Claude Code, Cursor, GitHub Copilot, and Gemini CLI to search and install domain-specific skills on demand.\n\n## One-Line Installation\n\nInstall the `find-skills` capability directly from [`vercel-labs/skills`](https://github.com/vercel-labs/skills) into your workspace:\n\n```bash\nnpx skills add vercel-labs/skills --skill find-skills\n```\n\n## Core CLI Commands\n\n```bash\n# Interactively search all indexed GitHub SKILL.md repositories\nnpx skills find\n\n# Search for a specific domain capability across GitHub\nnpx skills find \"react performance\"\n\n# Install any GitHub-hosted skill into your local agent directory\nnpx skills add vercel-labs/agent-skills --skill vercel-react-best-practices\n\n# List and verify installed skills in your project\nnpx skills list\n```\n\n## Top GitHub Skills Index (Reference Leaderboard)\n\n| Rank | Skill / Repository | Maintainer | Stars / Installs | Primary Use Case |\n| --- | --- | --- | --- | --- |\n| `#1` | `find-skills` (`vercel-labs/skills`) | `@vercel-labs` | `38,400 ★` | Meta-skill for searching & installing GitHub `SKILL.md` packages |\n| `#2` | `vercel-react-best-practices` | `@vercel-labs` | `33,200 ★` | React & Next.js performance, server actions, and bundle optimization |\n| `#3` | `frontend-design` (`anthropics/skills`) | `@anthropics` | `29,800 ★` | Production-grade UI architecture, typography, and layout systems |\n| `#4` | `brainstorming` (`obra/superpowers`) | `@obra` | `26,500 ★` | Structured architectural planning and specification refinement |\n| `#5` | `actions/checkout` | `@actions` | `6,400 ★` | Most-used GitHub Actions workflow step for repository cloning |\n\n## Standard `SKILL.md` Structure\n\nEvery GitHub agent skill follows a zero-build directory contract containing a `SKILL.md` manifest with YAML frontmatter:\n\n```markdown\n---\nname: find-skills\ndescription: >-\n  Helps users discover and install agent skills when they ask questions\n  like \"how do I do X\" or \"find a skill for X\" using the skills CLI.\n---\n\n# Find Skills\n\nWhen a task requires specialized domain workflows, query the GitHub skill registry:\n1. Run `npx skills find <query>` to locate matching community or official skills.\n2. Run `npx skills add <owner>/<repo> --skill <name>` to mount the instructions.\n```"
+  },
+  {
     "id": "gh-release-sentinel",
     "name": "Release Sentinel",
     "description": "Zero-config semantic versioning, conventional commit parser, and automated GitHub release notes generator with monorepo tag isolation.",
