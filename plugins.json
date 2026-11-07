@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gh-release-sentinel",
+    "name": "Release Sentinel",
+    "description": "Zero-config semantic versioning, conventional commit parser, and automated GitHub release notes generator with monorepo tag isolation.",
+    "author": "alexrivera",
+    "version": "2.4.1",
+    "category": "Automation",
+    "tags": ["github-actions", "semver", "changelog", "ci-cd"],
+    "installCommand": "npx @forgehub/release-sentinel init --workflow",
+    "downloadUrl": "https://github.com/forgehub-registry/release-sentinel/releases/latest/download/release-sentinel.tar.gz",
+    "readme": "# Release Sentinel\n\nAutomated semantic versioning and changelog generation designed for zero-maintenance GitHub repositories.\n\n## Quick Start\n\nRun the initializer in your repository root to scaffold the workflow:\n\n```bash\nnpx @forgehub/release-sentinel init --workflow\n```\n\n## GitHub Actions Configuration\n\nAdd the following step to `.github/workflows/release.yml`:\n\n```yaml\nname: Release Pipeline\non:\n  push:\n    branches: [main]\n\njobs:\n  release:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n      pull-requests: write\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - name: Run Release Sentinel\n        uses: forgehub-registry/release-sentinel@v2.4.1\n        with:\n          dry-run: false\n          changelog-file: CHANGELOG.md\n```\n\n## Key Capabilities\n\n- Parses `feat:`, `fix:`, and `BREAKING CHANGE:` commits strictly per Conventional Commits 1.0.0.\n- Automatically calculates the next SemVer bump and updates `package.json` or `plugins.json`.\n- Generates categorized Markdown release notes with commit SHA links and contributor attribution."
+  },
+  {
+    "id": "cmdk-palette-lite",
+    "name": "Command Palette Zero",
+    "description": "Dependency-free, WAI-ARIA compliant command menu and fuzzy launcher built as a 3.8kB Custom Element for static sites and documentation hubs.",
+    "author": "sarakim",
+    "version": "1.8.0",
+    "category": "UI",
+    "tags": ["command-palette", "keyboard", "a11y", "web-components"],
+    "installCommand": "<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@forgehub/cmdk-zero@1.8.0/dist/cmdk.min.js\"></script>",
+    "downloadUrl": "https://github.com/forgehub-registry/cmdk-zero/releases/latest/download/cmdk-zero.esm.js",
+    "readme": "# Command Palette Zero\n\nDrop-in `<forge-cmdk>` Web Component with sub-millisecond fuzzy scoring, keyboard navigation, and dark/light CSS custom properties.\n\n## CDN Installation\n\nPaste the module script tag into your `<head>`:\n\n```html\n<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@forgehub/cmdk-zero@1.8.0/dist/cmdk.min.js\"></script>\n```\n\n## Usage Example\n\n```javascript\nconst palette = document.querySelector('forge-cmdk');\n\npalette.setCommands([\n  {\n    id: 'copy-url',\n    title: 'Copy Current Page URL',\n    section: 'Actions',\n    shortcut: 'Mod+Shift+C',\n    handler: () => navigator.clipboard.writeText(location.href)\n  },\n  {\n    id: 'toggle-theme',\n    title: 'Toggle Dark / Light Appearance',\n    section: 'Preferences',\n    shortcut: 'Mod+J',\n    handler: () => document.documentElement.classList.toggle('dark')\n  }\n]);\n```\n\n## Keyboard Shortcuts\n\n- `Cmd+K` / `Ctrl+K` — Toggle modal visibility\n- `ArrowUp` / `ArrowDown` — Navigate filtered items\n- `Enter` — Execute highlighted command\n- `Escape` — Dismiss palette and restore focus"
+  },
+  {
+    "id": "env-vault-sync",
+    "name": "EnvVault CLI",
+    "description": "Portable command-line utility that encrypts local .env files using AES-256-GCM so secrets can be safely committed to version control.",
+    "author": "marcuschen",
+    "version": "3.1.2",
+    "category": "CLI",
+    "tags": ["dotenv", "encryption", "secrets", "cli-tool"],
+    "installCommand": "curl -fsSL https://get.forgehub.dev/env-vault | sh",
+    "downloadUrl": "https://github.com/forgehub-registry/env-vault-cli/releases/latest/download/env-vault-linux-amd64.tar.gz",
+    "readme": "# EnvVault CLI\n\nCommit encrypted `.env.vault` snapshots directly to Git and decrypt them in CI/CD or local environments with a single master key.\n\n## One-Line Install\n\n```bash\ncurl -fsSL https://get.forgehub.dev/env-vault | sh\n```\n\n## Core Workflow\n\n```bash\n# 1. Generate a project encryption key and initialize .env.vault\nenv-vault init --env .env.production\n\n# 2. Encrypt local changes into the committed .env.vault file\nenv-vault lock --input .env.production --output .env.vault\n\n# 3. Execute any process with decrypted secrets injected in memory\nENV_VAULT_KEY=\"vlt_9f8a...\" env-vault exec -- node server.js\n```\n\n## Security Architecture\n\n- Uses authenticated AES-256-GCM encryption with unique 96-bit nonces per lock operation.\n- Zero plaintext disk writes during `env-vault exec`—variables are injected directly into the child process environment."
+  },
+  {
+    "id": "edge-rate-guard",
+    "name": "Edge RateGuard",
+    "description": "Lightweight sliding-window rate limiter and token-bucket middleware for standard Fetch API handlers, Cloudflare Workers, and Deno Deploy.",
+    "author": "priyapatel",
+    "version": "1.5.4",
+    "category": "API",
+    "tags": ["rate-limit", "middleware", "cloudflare-workers", "token-bucket"],
+    "installCommand": "npm install @forgehub/edge-rate-guard",
+    "downloadUrl": "https://github.com/forgehub-registry/edge-rate-guard/releases/latest/download/edge-rate-guard-1.5.4.tgz",
+    "readme": "# Edge RateGuard\n\nStandards-based HTTP rate limiting middleware built on the Web Fetch `Request` and `Response` primitives with zero Node.js-specific dependencies.\n\n## Installation\n\n```bash\nnpm install @forgehub/edge-rate-guard\n```\n\n## Middleware Usage\n\n```javascript\nimport { createRateGuard } from '@forgehub/edge-rate-guard';\n\nconst limiter = createRateGuard({\n  windowMs: 60_000,\n  maxRequests: 120,\n  keyGenerator: (req) => req.headers.get('cf-connecting-ip') || 'anonymous',\n  standardHeaders: true\n});\n\nexport default {\n  async fetch(request) {\n    const verdict = await limiter.check(request);\n    if (!verdict.allowed) {\n      return verdict.toTooManyRequestsResponse();\n    }\n    return new Response(JSON.stringify({ ok: true }), {\n      headers: verdict.headers\n    });\n  }\n};\n```\n\n## Response Headers\n\nAutomatically attaches IETF draft-compliant headers (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, and `Retry-After`)."
+  }
+]

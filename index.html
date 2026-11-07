@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ForgeHub — Static Plugin Marketplace & Registry</title>
+    <meta
+      name="description"
+      content="Zero-build-step, data-driven developer plugin marketplace and registry powered by Vanilla ES6+, Tailwind CSS, Lucide Icons, and a single plugins.json schema for GitHub Pages."
+    />
+    <meta property="og:title" content="ForgeHub — Static Plugin Marketplace & Registry" />
+    <meta
+      property="og:description"
+      content="Zero-build-step, data-driven developer plugin marketplace and registry powered by Vanilla ES6+, Tailwind CSS, Lucide Icons, and a single plugins.json schema for GitHub Pages."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Plus Jakarta Sans (Display/UI) & JetBrains Mono (Code/Tabular Data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN for Zero-Build GitHub Pages Hosting -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      if (typeof tailwind !== 'undefined') {
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+              },
+            },
+          },
+        };
+      }
+    </script>
+
+    <!-- Local stylesheet fallback when served in Vite environment -->
+    <link rel="stylesheet" href="./src/index.css" />
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-150">
+    <!-- Top Bar Contract: Strictly 3 zones separated by gap-8 -->
+    <header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
+        <!-- Zone 1: Single text element wordmark -->
+        <a
+          href="#directory"
+          class="text-lg font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+        >
+          ForgeHub
+        </a>
+
+        <!-- Zone 2: 4 concise single-line navigation links -->
+        <nav aria-label="Primary Navigation" class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-400">
+          <a
+            href="#directory"
+            class="hover:text-slate-900 dark:hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0"
+          >
+            Directory
+          </a>
+          <a
+            href="#schema-spec"
+            class="hover:text-slate-900 dark:hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0"
+          >
+            Schema Spec
+          </a>
+          <a
+            href="#deploy-guide"
+            class="hover:text-slate-900 dark:hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0"
+          >
+            GitHub Pages Guide
+          </a>
+          <a
+            href="./plugins.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-slate-900 dark:hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0"
+          >
+            Raw JSON
+          </a>
+        </nav>
+
+        <!-- Zone 3: 1 Primary Action Button -->
+        <div class="flex items-center shrink-0">
+          <button
+            id="open-submit-modal-btn"
+            type="button"
+            class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg transition-colors whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 cursor-pointer"
+          >
+            Submit a Plugin
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10 space-y-16">
+      <!-- Hero & Search / Filter Control Section -->
+      <section id="directory" class="space-y-8">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800/80">
+          <div class="space-y-3 max-w-3xl">
+            <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 tracking-wide">
+              Static Registry · Zero Build Pipeline · Single Manifest Architecture
+            </p>
+            <h1
+              class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight"
+              style="text-wrap: balance;"
+            >
+              Developer Plugin Marketplace for GitHub Pages
+            </h1>
+            <p class="text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
+              Browse, inspect, and install community-curated developer extensions. Every listing is dynamically hydrated at runtime from a single repository-hosted <code class="font-mono text-xs text-slate-800 dark:text-slate-200">plugins.json</code> manifest.
+            </p>
+          </div>
+
+          <!-- Workspace Utility Controls (Theme Switch & Catalog Metrics) -->
+          <div class="flex items-center gap-4 shrink-0 self-start lg:self-end">
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+              <span id="total-plugins-metric">4</span> registered plugins · <span id="visible-plugins-metric">4</span> shown
+            </div>
+            <span class="text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
+            <button
+              id="theme-toggle-btn"
+              type="button"
+              aria-label="Toggle color theme"
+              class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            >
+              <span id="theme-toggle-icon" class="w-4 h-4 flex items-center justify-center" aria-hidden="true"></span>
+              <span id="theme-toggle-label">Light Mode</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Input & Segmented Category Filter Bar -->
+        <div class="space-y-4">
+          <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <!-- Real-Time Search Bar -->
+            <div class="relative flex-1">
+              <label for="plugin-search" class="sr-only">
+                Search plugins by name, description, author, or tag
+              </label>
+              <span
+                id="search-icon-slot"
+                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500"
+                aria-hidden="true"
+              ></span>
+              <input
+                id="plugin-search"
+                type="search"
+                autocomplete="off"
+                placeholder="Search plugins by name, description, author, or tag (press / to focus)..."
+                class="w-full pl-10 pr-24 py-2.5 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+              />
+              <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 gap-1.5">
+                <button
+                  id="clear-search-btn"
+                  type="button"
+                  class="hidden px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                  aria-label="Clear search query"
+                >
+                  Clear
+                </button>
+                <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[11px] font-mono text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 rounded">
+                  /
+                </kbd>
+              </div>
+            </div>
+
+            <!-- Sort Selector -->
+            <div class="flex items-center gap-2 shrink-0">
+              <label for="plugin-sort" class="text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                Sort by
+              </label>
+              <select
+                id="plugin-sort"
+                class="px-3 py-2.5 text-xs font-medium bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              >
+                <option value="featured">Featured Order</option>
+                <option value="name">Name (A–Z)</option>
+                <option value="version">Version (Newest)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Category Filter Controls + Active Tag Indicator -->
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div
+              id="category-filters"
+              role="group"
+              aria-label="Filter plugins by category"
+              class="inline-flex flex-wrap items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg"
+            >
+              <!-- Populated dynamically by app.js -->
+            </div>
+
+            <!-- Active Tag Filter Status -->
+            <div id="active-tag-banner" class="hidden items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span>Filtered by tag:</span>
+              <strong id="active-tag-value" class="font-mono text-indigo-600 dark:text-indigo-400"></strong>
+              <button
+                id="clear-tag-btn"
+                type="button"
+                class="text-xs font-medium underline hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              >
+                Clear tag
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading Skeleton State -->
+        <div
+          id="loading-state"
+          aria-live="polite"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
+            <div class="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            <div class="h-6 w-64 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            <div class="h-12 w-full bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+            <div class="h-10 w-full bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+          </div>
+          <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
+            <div class="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            <div class="h-6 w-64 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            <div class="h-12 w-full bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+            <div class="h-10 w-full bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div
+          id="error-state"
+          role="alert"
+          class="hidden p-8 rounded-xl border border-red-300 dark:border-red-900/60 bg-white dark:bg-slate-900 text-center space-y-4"
+        >
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+            Unable to Load Plugin Registry
+          </h2>
+          <p id="error-message" class="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+            Could not fetch local plugins.json manifest. Verify that plugins.json is present in the same directory as index.html.
+          </p>
+          <div>
+            <button
+              id="retry-fetch-btn"
+              type="button"
+              class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors cursor-pointer"
+            >
+              Retry Fetch
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Search / Filter State -->
+        <div
+          id="empty-state"
+          class="hidden p-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center space-y-4"
+        >
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+            No Matching Plugins Found
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+            No plugins matched your current search query or category filter. Reset your filters or submit a new plugin to the registry.
+          </p>
+          <div class="flex items-center justify-center gap-3 pt-2">
+            <button
+              id="reset-filters-btn"
+              type="button"
+              class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Reset Filters
+            </button>
+            <button
+              id="empty-submit-plugin-btn"
+              type="button"
+              class="px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Submit a Plugin
+            </button>
+          </div>
+        </div>
+
+        <!-- Plugin Cards Grid -->
+        <div
+          id="plugin-grid"
+          data-testid="plugin-grid"
+          class="hidden grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <!-- Dynamically populated from plugins.json by app.js -->
+        </div>
+      </section>
+
+      <!-- Schema Specification Section -->
+      <section id="schema-spec" class="pt-12 border-t border-slate-200 dark:border-slate-800/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              01. Single-File Manifest Schema (<code class="font-mono text-xl text-indigo-600 dark:text-indigo-400">plugins.json</code>)
+            </h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+              Every card, install snippet, and documentation modal in ForgeHub is generated directly from objects in <code class="font-mono text-xs">plugins.json</code>. Contributors add plugins by appending an object with these ten required properties.
+            </p>
+          </div>
+          <button
+            id="schema-open-submit-btn"
+            type="button"
+            class="px-4 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors whitespace-nowrap shrink-0 self-start sm:self-end cursor-pointer"
+          >
+            Open Interactive Schema Builder
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-900/60">
+                <th class="py-3 px-4">Field</th>
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Constraint</th>
+                <th class="py-3 px-4">Description</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-800/70 text-xs">
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">id</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">Unique slug (kebab-case)</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Unique identifier used for deep-linking and DOM actions (e.g. <code class="font-mono">gh-release-sentinel</code>).</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">name</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">Required</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Human-readable title displayed on the plugin card and documentation header.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">description</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">80–180 chars recommended</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Concise summary indexed by the real-time search engine.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">author</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">GitHub username</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Maintainer handle credited on the card metadata bar.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">version</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">SemVer (<code class="font-mono">X.Y.Z</code>)</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Semantic version string rendered with tabular numerals.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">category</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500"><code class="font-mono">Automation | UI | CLI | API</code></td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Primary taxonomy bucket mapped to the top category filter bar.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">tags</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string[]</td>
+                <td class="py-3 px-4 text-slate-500">1–5 lowercase strings</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Searchable and clickable keywords for cross-category filtering.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">installCommand</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">Required</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">CLI command, CDN script tag, or package snippet copied via One-Click Copy.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">downloadUrl</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">HTTPS URL</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Direct link to the release tarball, ESM bundle, or GitHub release asset.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">readme</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
+                <td class="py-3 px-4 text-slate-500">Markdown string</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Full usage documentation and code examples rendered inside the View Source / Docs modal.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Zero-Build GitHub Pages Deployment Guide -->
+      <section id="deploy-guide" class="pt-12 border-t border-slate-200 dark:border-slate-800/80 space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            02. Zero-Build GitHub Pages Deployment Architecture
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+            Commit <code class="font-mono text-xs">index.html</code>, <code class="font-mono text-xs">app.js</code>, and <code class="font-mono text-xs">plugins.json</code> to the root of any GitHub repository and enable GitHub Pages from the <code class="font-mono text-xs">main</code> branch.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            <p class="text-xs font-mono text-indigo-600 dark:text-indigo-400">File 01 · index.html</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">Declarative Shell &amp; Modals</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Loads Tailwind CSS and Lucide Icons via CDN, defines semantic accessible dialogs for documentation and contributor onboarding, and requires zero bundler compilation.
+            </p>
+          </div>
+          <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            <p class="text-xs font-mono text-indigo-600 dark:text-indigo-400">File 02 · app.js</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">Vanilla ES6+ Runtime Engine</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Fetches <code class="font-mono">./plugins.json</code> dynamically, manages reactive search and category filtering, handles Clipboard API copying with toast feedback, and parses Markdown readmes.
+            </p>
+          </div>
+          <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            <p class="text-xs font-mono text-indigo-600 dark:text-indigo-400">File 03 · plugins.json</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">Git-Backed Plugin Manifest</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Single source of truth for all listings. Community contributors submit new plugins by opening a Pull Request that appends one JSON object to this file.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Quiet Footer -->
+    <footer class="mt-20 border-t border-slate-200 dark:border-slate-800/80 py-8">
+      <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <p>ForgeHub Static Plugin Registry · Built for GitHub Pages with Vanilla ES6+ &amp; Tailwind CSS</p>
+        <div class="flex items-center gap-4">
+          <a href="#directory" class="hover:text-slate-900 dark:hover:text-white transition-colors">Directory</a>
+          <span aria-hidden="true">·</span>
+          <a href="#schema-spec" class="hover:text-slate-900 dark:hover:text-white transition-colors">Schema</a>
+          <span aria-hidden="true">·</span>
+          <a href="./plugins.json" target="_blank" rel="noopener noreferrer" class="hover:text-slate-900 dark:hover:text-white transition-colors">plugins.json</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- MODAL 1: View Source / Docs Modal -->
+    <div
+      id="docs-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="docs-modal-title"
+      class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-slate-950/75 backdrop-blur-sm"
+    >
+      <div
+        class="relative w-full max-w-3xl max-h-[88vh] flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+      >
+        <!-- Modal Header -->
+        <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div id="docs-modal-meta" class="text-xs font-mono text-slate-500 dark:text-slate-400 tabular-nums">
+              <!-- Populated by app.js -->
+            </div>
+            <h2 id="docs-modal-title" class="text-xl font-bold text-slate-900 dark:text-white">
+              Plugin Documentation
+            </h2>
+          </div>
+          <button
+            id="close-docs-modal-btn"
+            type="button"
+            aria-label="Close documentation modal"
+            class="px-2.5 py-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <span class="text-xs font-mono">Esc</span>
+          </button>
+        </div>
+
+        <!-- Modal Tabs (Documentation vs Raw Manifest JSON) -->
+        <div class="flex items-center justify-between px-6 py-2.5 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800">
+          <div class="inline-flex items-center gap-1" role="tablist">
+            <button
+              id="docs-tab-readme"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm cursor-pointer"
+            >
+              Usage &amp; Readme
+            </button>
+            <button
+              id="docs-tab-json"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+            >
+              Raw Manifest Object
+            </button>
+          </div>
+          <div id="docs-modal-tags" class="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-500 dark:text-slate-400">
+            <!-- Populated by app.js -->
+          </div>
+        </div>
+
+        <!-- Modal Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+          <!-- Install Command Quick Copy Box -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-slate-700 dark:text-slate-300">One-Click Install / CDN Snippet</span>
+              <button
+                id="docs-copy-install-btn"
+                type="button"
+                class="font-medium text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              >
+                Copy Install Command
+              </button>
+            </div>
+            <pre
+              class="p-3.5 rounded-lg bg-slate-900 dark:bg-slate-950 border border-slate-800 text-slate-100 font-mono text-xs overflow-x-auto"
+            ><code id="docs-install-command"></code></pre>
+          </div>
+
+          <!-- Readme View -->
+          <div id="docs-readme-panel" class="space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <!-- Populated by app.js markdown renderer -->
+          </div>
+
+          <!-- Raw JSON View -->
+          <div id="docs-json-panel" class="hidden space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-slate-700 dark:text-slate-300">Entry in <code class="font-mono">plugins.json</code></span>
+              <button
+                id="docs-copy-json-btn"
+                type="button"
+                class="font-medium text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              >
+                Copy JSON Object
+              </button>
+            </div>
+            <pre
+              class="p-4 rounded-lg bg-slate-900 dark:bg-slate-950 border border-slate-800 text-emerald-300 font-mono text-xs overflow-x-auto"
+            ><code id="docs-raw-json"></code></pre>
+          </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50">
+          <div class="flex items-center gap-3">
+            <a
+              id="docs-download-link"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors whitespace-nowrap"
+            >
+              Download Release Package
+            </a>
+            <a
+              id="docs-repo-link"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap"
+            >
+              View GitHub Source
+            </a>
+          </div>
+          <button
+            id="footer-close-docs-btn"
+            type="button"
+            class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Submit a Plugin Modal (Contributor Guide + Interactive Manifest Builder) -->
+    <div
+      id="submit-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="submit-modal-title"
+      class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-slate-950/75 backdrop-blur-sm"
+    >
+      <div
+        class="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+      >
+        <!-- Modal Header -->
+        <div class="flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <p class="text-xs font-mono text-indigo-600 dark:text-indigo-400">Contributor Workflow · Pull Request Guide</p>
+            <h2 id="submit-modal-title" class="text-xl font-bold text-slate-900 dark:text-white">
+              Submit a Plugin to <code class="font-mono text-lg">plugins.json</code>
+            </h2>
+          </div>
+          <button
+            id="close-submit-modal-btn"
+            type="button"
+            aria-label="Close submit plugin modal"
+            class="px-2.5 py-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <span class="text-xs font-mono">Esc</span>
+          </button>
+        </div>
+
+        <!-- Scrollable Modal Content -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-5">
+          <!-- 3-Step GitHub Fork & Append Instructions -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/50 space-y-1">
+              <p class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400">01. Fork Repository</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Fork this repository on GitHub and open <code class="font-mono">plugins.json</code> in the root directory.
+              </p>
+            </div>
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/50 space-y-1">
+              <p class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400">02. Append Manifest Object</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Use the builder below to generate a schema-validated JSON entry and append it to the <code class="font-mono">plugins.json</code> array.
+              </p>
+            </div>
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/50 space-y-1">
+              <p class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400">03. Open Pull Request</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Commit your update and open a Pull Request. Once merged, GitHub Pages publishes your plugin live with zero build step.
+              </p>
+            </div>
+          </div>
+
+          <!-- Interactive Form + Live JSON Preview -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <form id="contributor-plugin-form" class="lg:col-span-7 space-y-3.5" novalidate>
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
+                  Plugin Manifest Generator
+                </h3>
+                <span class="text-xs text-slate-500 dark:text-slate-400">All fields required for live preview</span>
+              </div>
+
+              <div
+                id="submit-form-error"
+                role="alert"
+                class="hidden p-3 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300"
+              ></div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label for="contrib-name" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Plugin Name
+                  </label>
+                  <input
+                    id="contrib-name"
+                    type="text"
+                    required
+                    value="Webhook Replay Inspector"
+                    placeholder="e.g. Webhook Replay Inspector"
+                    class="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="contrib-id" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Plugin ID (kebab-case)
+                  </label>
+                  <input
+                    id="contrib-id"
+                    type="text"
+                    required
+                    value="webhook-replay-inspector"
+                    placeholder="e.g. webhook-replay-inspector"
+                    class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div>
+                  <label for="contrib-author" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    GitHub Author
+                  </label>
+                  <input
+                    id="contrib-author"
+                    type="text"
+                    required
+                    value="devcontributor"
+                    placeholder="e.g. octocat"
+                    class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="contrib-version" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Version (SemVer)
+                  </label>
+                  <input
+                    id="contrib-version"
+                    type="text"
+                    required
+                    value="1.0.0"
+                    placeholder="1.0.0"
+                    class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="contrib-category" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Category
+                  </label>
+                  <select
+                    id="contrib-category"
+                    class="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="Automation">Automation</option>
+                    <option value="UI">UI</option>
+                    <option value="CLI">CLI</option>
+                    <option value="API" selected>API</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="contrib-description" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Description
+                </label>
+                <input
+                  id="contrib-description"
+                  type="text"
+                  required
+                  value="Capture, inspect, and replay signed HTTP webhook payloads locally with HMAC verification."
+                  placeholder="Concise description of what your plugin does..."
+                  class="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label for="contrib-tags" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Tags (comma-separated)
+                  </label>
+                  <input
+                    id="contrib-tags"
+                    type="text"
+                    required
+                    value="webhooks, hmac, debugging, http"
+                    placeholder="webhooks, debugging, api"
+                    class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="contrib-install" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Install Command or CDN Snippet
+                  </label>
+                  <input
+                    id="contrib-install"
+                    type="text"
+                    required
+                    value="npx @forgehub/webhook-replay listen --port 4040"
+                    placeholder="npx @forgehub/my-plugin init"
+                    class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="contrib-download" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Download / Release URL
+                </label>
+                <input
+                  id="contrib-download"
+                  type="url"
+                  required
+                  value="https://github.com/forgehub-registry/webhook-replay/releases/latest/download/webhook-replay.tgz"
+                  placeholder="https://github.com/org/repo/releases/latest/download/plugin.tgz"
+                  class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label for="contrib-readme" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Readme Documentation (Markdown)
+                </label>
+                <textarea
+                  id="contrib-readme"
+                  rows="2"
+                  required
+                  class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                ># Webhook Replay Inspector
+
+Inspect and replay incoming webhooks against localhost.
+
+```bash
+npx @forgehub/webhook-replay listen --port 4040
+```</textarea>
+              </div>
+            </form>
+
+            <!-- Live Generated JSON Object Preview -->
+            <div class="lg:col-span-5 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-700 dark:text-slate-300">Generated <code class="font-mono">plugins.json</code> Object</span>
+                <span class="font-mono text-emerald-600 dark:text-emerald-400">Schema Valid</span>
+              </div>
+              <pre
+                class="p-4 rounded-xl bg-slate-900 dark:bg-slate-950 border border-slate-800 text-emerald-300 font-mono text-xs overflow-x-auto max-h-[340px]"
+              ><code id="generated-json-preview"></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer with Primary Contributor Actions Always Visible -->
+        <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50">
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              id="copy-generated-json-btn"
+              type="button"
+              class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              Copy JSON Entry for PR
+            </button>
+            <button
+              id="test-plugin-live-btn"
+              type="submit"
+              form="contributor-plugin-form"
+              class="px-4 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              Test Live in Directory
+            </button>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="hidden sm:inline text-xs text-slate-500 dark:text-slate-400">
+              Target file: <code class="font-mono">/plugins.json</code>
+            </span>
+            <button
+              id="footer-close-submit-btn"
+              type="button"
+              class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accessible Toast Notification Container -->
+    <div
+      id="toast-container"
+      aria-live="polite"
+      aria-atomic="true"
+      class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+    ></div>
+
+    <!-- Main Vanilla ES6+ Application Logic -->
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

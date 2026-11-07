@@ -1,0 +1,6 @@
+{
+  "name": "ForgeHub — Static Plugin Marketplace & Registry",
+  "description": "Zero-build-step, data-driven developer plugin marketplace and registry powered by Vanilla ES6+, Tailwind CSS, Lucide Icons, and a single plugins.json schema for GitHub Pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

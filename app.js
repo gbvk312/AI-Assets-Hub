@@ -1,0 +1,893 @@
+/**
+ * ForgeHub — Zero-Build Static Plugin Marketplace & Hub
+ * Pure Vanilla JavaScript (ES6+) · Dynamically hydrated from ./plugins.json
+ */
+
+const state = {
+  plugins: [],
+  searchQuery: '',
+  category: 'All',
+  activeTag: null,
+  sortBy: 'featured',
+  activePluginId: null,
+  activeDocsTab: 'readme',
+  theme: 'dark',
+};
+
+const BASE_CATEGORIES = ['All', 'Automation', 'UI', 'CLI', 'API'];
+
+/**
+ * Inline Lucide SVG definitions for zero-latency rendering & offline resilience,
+ * paired with window.lucide.createIcons() when CDN script is active.
+ */
+const ICONS = {
+  search:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+  copy:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+  check:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  bookOpen:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+  download:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+  sun:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+  moon:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+};
+
+/**
+ * Escapes HTML special characters to prevent XSS when rendering dynamic JSON strings.
+ */
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Copies text to clipboard using standard Clipboard API with textarea fallback for iframes.
+ */
+async function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to execCommand fallback
+    }
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } catch {
+    copied = false;
+  }
+  document.body.removeChild(textarea);
+  return copied;
+}
+
+/**
+ * Displays a non-blocking, accessible toast notification at bottom-right.
+ */
+function showToast(title, detail = '') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className =
+    'pointer-events-auto flex items-start gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xl transition-all duration-150 opacity-0 translate-y-2';
+
+  toast.innerHTML = `
+    <span class="mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true">${ICONS.check}</span>
+    <div class="flex-1 min-w-0 space-y-1">
+      <p class="text-xs font-semibold">${escapeHtml(title)}</p>
+      ${
+        detail
+          ? `<p class="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">${escapeHtml(detail)}</p>`
+          : ''
+      }
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.remove('opacity-0', 'translate-y-2');
+  });
+
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 180);
+  }, 3200);
+}
+
+/**
+ * Pure filtering and sorting function matching src/utils/pluginCore.ts
+ */
+export function filterAndSortPlugins(plugins, currentState) {
+  const query = (currentState.searchQuery || '').trim().toLowerCase();
+  const category = (currentState.category || 'All').trim();
+  const activeTag = currentState.activeTag ? currentState.activeTag.trim().toLowerCase() : null;
+
+  const filtered = plugins.filter((plugin) => {
+    const matchesCategory =
+      category === 'All' ||
+      String(plugin.category || '').toLowerCase() === category.toLowerCase();
+
+    const matchesTag =
+      !activeTag ||
+      (Array.isArray(plugin.tags) &&
+        plugin.tags.some((t) => String(t).toLowerCase() === activeTag));
+
+    if (!matchesCategory || !matchesTag) return false;
+    if (!query) return true;
+
+    const inTitle = String(plugin.name || '').toLowerCase().includes(query);
+    const inDescription = String(plugin.description || '').toLowerCase().includes(query);
+    const inAuthor = String(plugin.author || '').toLowerCase().includes(query);
+    const inId = String(plugin.id || '').toLowerCase().includes(query);
+    const inCategory = String(plugin.category || '').toLowerCase().includes(query);
+    const inTags =
+      Array.isArray(plugin.tags) &&
+      plugin.tags.some((tag) => String(tag).toLowerCase().includes(query));
+
+    return inTitle || inDescription || inAuthor || inId || inCategory || inTags;
+  });
+
+  const sorted = [...filtered];
+  if (currentState.sortBy === 'name') {
+    sorted.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  } else if (currentState.sortBy === 'version') {
+    sorted.sort((a, b) =>
+      String(b.version).localeCompare(String(a.version), undefined, { numeric: true })
+    );
+  }
+  return sorted;
+}
+
+/**
+ * Parses Markdown string from plugin.readme into clean, semantic HTML with copyable code blocks.
+ */
+function renderMarkdownToHtml(markdown) {
+  const raw = String(markdown || '');
+  const segments = raw.split(/(```[\s\S]*?```)/g);
+
+  return segments
+    .map((segment, index) => {
+      if (segment.startsWith('```') && segment.endsWith('```')) {
+        const lines = segment.slice(3, -3).trim().split('\n');
+        let lang = 'shell';
+        let codeContent = lines.join('\n');
+        if (lines.length > 1 && /^[a-zA-Z0-9_-]+$/.test(lines[0].trim())) {
+          lang = lines[0].trim();
+          codeContent = lines.slice(1).join('\n');
+        }
+        const encodedCode = encodeURIComponent(codeContent);
+        return `
+          <div class="my-4 rounded-lg border border-slate-800 bg-slate-950 overflow-hidden">
+            <div class="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-[11px] font-mono text-slate-400">
+              <span>${escapeHtml(lang)}</span>
+              <button
+                type="button"
+                data-copy-encoded="${encodedCode}"
+                class="text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer"
+              >
+                Copy Code
+              </button>
+            </div>
+            <pre class="p-3.5 text-xs font-mono text-slate-100 overflow-x-auto leading-relaxed"><code>${escapeHtml(codeContent)}</code></pre>
+          </div>
+        `;
+      }
+
+      const blocks = segment
+        .trim()
+        .split(/\n{2,}/)
+        .filter(Boolean);
+
+      return blocks
+        .map((block) => {
+          const trimmed = block.trim();
+          if (trimmed.startsWith('# ')) {
+            return `<h3 class="text-base font-bold text-slate-900 dark:text-white mt-2">${formatInlineMarkdown(trimmed.slice(2))}</h3>`;
+          }
+          if (trimmed.startsWith('## ')) {
+            return `<h4 class="text-sm font-semibold text-slate-900 dark:text-white mt-4 pt-2 border-t border-slate-200 dark:border-slate-800">${formatInlineMarkdown(trimmed.slice(3))}</h4>`;
+          }
+          const lines = trimmed.split('\n');
+          if (lines.every((line) => line.trim().startsWith('- '))) {
+            const items = lines
+              .map(
+                (line) =>
+                  `<li class="ml-4 list-disc text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${formatInlineMarkdown(line.trim().slice(2))}</li>`
+              )
+              .join('');
+            return `<ul class="space-y-1.5 my-2">${items}</ul>`;
+          }
+          return `<p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${formatInlineMarkdown(trimmed)}</p>`;
+        })
+        .join('');
+    })
+    .join('');
+}
+
+function formatInlineMarkdown(text) {
+  const escaped = escapeHtml(text);
+  return escaped.replace(
+    /`([^`]+)`/g,
+    '<code class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px] text-indigo-600 dark:text-indigo-300">$1</code>'
+  );
+}
+
+/**
+ * Renders the segmented category filter buttons with live counts.
+ */
+function renderCategoryFilters() {
+  const container = document.getElementById('category-filters');
+  if (!container) return;
+
+  const counts = new Map();
+  for (const cat of BASE_CATEGORIES) {
+    if (cat !== 'All') counts.set(cat, 0);
+  }
+  for (const plugin of state.plugins) {
+    const cat = plugin.category || 'Other';
+    counts.set(cat, (counts.get(cat) || 0) + 1);
+  }
+
+  const allCategories = [
+    { name: 'All', count: state.plugins.length },
+    ...Array.from(counts.entries()).map(([name, count]) => ({ name, count })),
+  ];
+
+  container.innerHTML = allCategories
+    .map(({ name, count }) => {
+      const isActive = state.category.toLowerCase() === name.toLowerCase();
+      const btnClasses = isActive
+        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-semibold'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium';
+
+      return `
+        <button
+          type="button"
+          data-category="${escapeHtml(name)}"
+          aria-pressed="${isActive ? 'true' : 'false'}"
+          class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${btnClasses}"
+        >
+          <span>${escapeHtml(name)}</span>
+          <span class="ml-1.5 font-mono text-[11px] opacity-75 tabular-nums">${count}</span>
+        </button>
+      `;
+    })
+    .join('');
+}
+
+/**
+ * Renders the filtered plugin cards grid or empty state.
+ */
+function renderPluginGrid() {
+  const grid = document.getElementById('plugin-grid');
+  const emptyState = document.getElementById('empty-state');
+  const totalMetric = document.getElementById('total-plugins-metric');
+  const visibleMetric = document.getElementById('visible-plugins-metric');
+  const clearSearchBtn = document.getElementById('clear-search-btn');
+  const activeTagBanner = document.getElementById('active-tag-banner');
+  const activeTagValue = document.getElementById('active-tag-value');
+
+  if (!grid || !emptyState) return;
+
+  const filtered = filterAndSortPlugins(state.plugins, state);
+
+  if (totalMetric) totalMetric.textContent = String(state.plugins.length);
+  if (visibleMetric) visibleMetric.textContent = String(filtered.length);
+
+  if (clearSearchBtn) {
+    clearSearchBtn.classList.toggle('hidden', state.searchQuery.trim().length === 0);
+  }
+
+  if (activeTagBanner && activeTagValue) {
+    if (state.activeTag) {
+      activeTagBanner.classList.remove('hidden');
+      activeTagBanner.classList.add('inline-flex');
+      activeTagValue.textContent = `#${state.activeTag}`;
+    } else {
+      activeTagBanner.classList.add('hidden');
+      activeTagBanner.classList.remove('inline-flex');
+    }
+  }
+
+  if (filtered.length === 0) {
+    grid.classList.add('hidden');
+    grid.classList.remove('grid');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+  grid.classList.remove('hidden');
+  grid.classList.add('grid');
+
+  grid.innerHTML = filtered
+    .map((plugin) => {
+      const tagsMarkup = Array.isArray(plugin.tags)
+        ? plugin.tags
+            .map(
+              (tag) => `
+              <button
+                type="button"
+                data-tag="${escapeHtml(tag)}"
+                class="font-mono text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                aria-label="Filter by tag ${escapeHtml(tag)}"
+              >#${escapeHtml(tag)}</button>
+            `
+            )
+            .join('<span class="text-slate-300 dark:text-slate-700 select-none" aria-hidden="true">·</span>')
+        : '';
+
+      return `
+        <article
+          data-plugin-card="${escapeHtml(plugin.id)}"
+          class="flex flex-col justify-between p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors space-y-5"
+        >
+          <div class="space-y-3">
+            <!-- Unboxed Typographic Metadata Line (Zero-Pill Discipline) -->
+            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+              <span class="font-semibold text-indigo-600 dark:text-indigo-400">${escapeHtml(plugin.category)}</span>
+              <span aria-hidden="true">·</span>
+              <span>v${escapeHtml(plugin.version)}</span>
+              <span aria-hidden="true">·</span>
+              <span>by @${escapeHtml(plugin.author)}</span>
+            </div>
+
+            <!-- Plugin Title & Description -->
+            <div class="space-y-1.5">
+              <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+                ${escapeHtml(plugin.name)}
+              </h2>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                ${escapeHtml(plugin.description)}
+              </p>
+            </div>
+
+            <!-- Unboxed Interactive Tag Stream -->
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              ${tagsMarkup}
+            </div>
+          </div>
+
+          <div class="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <!-- Install Command Snippet Preview -->
+            <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 font-mono text-xs text-slate-800 dark:text-slate-200 overflow-x-auto">
+              <code class="truncate select-all">${escapeHtml(plugin.installCommand)}</code>
+            </div>
+
+            <!-- Card Action Buttons -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  data-action="copy-install"
+                  data-plugin-id="${escapeHtml(plugin.id)}"
+                  aria-label="Copy install command for ${escapeHtml(plugin.name)}"
+                  class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  <span class="pointer-events-none" aria-hidden="true">${ICONS.copy}</span>
+                  <span data-copy-label>Copy Install</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-action="view-docs"
+                  data-plugin-id="${escapeHtml(plugin.id)}"
+                  aria-label="View Source and Docs for ${escapeHtml(plugin.name)}"
+                  class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  <span class="pointer-events-none" aria-hidden="true">${ICONS.bookOpen}</span>
+                  <span>View Source / Docs</span>
+                </button>
+              </div>
+
+              <a
+                href="${escapeHtml(plugin.downloadUrl)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download release archive for ${escapeHtml(plugin.name)}"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors whitespace-nowrap shrink-0"
+              >
+                <span aria-hidden="true">${ICONS.download}</span>
+                <span>Download</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+/**
+ * Opens the View Source / Docs modal for a specific plugin ID.
+ */
+function openDocsModal(pluginId) {
+  const plugin = state.plugins.find((p) => p.id === pluginId);
+  if (!plugin) return;
+
+  state.activePluginId = plugin.id;
+  state.activeDocsTab = 'readme';
+
+  const modal = document.getElementById('docs-modal');
+  const metaEl = document.getElementById('docs-modal-meta');
+  const titleEl = document.getElementById('docs-modal-title');
+  const tagsEl = document.getElementById('docs-modal-tags');
+  const installEl = document.getElementById('docs-install-command');
+  const readmePanel = document.getElementById('docs-readme-panel');
+  const rawJsonEl = document.getElementById('docs-raw-json');
+  const downloadLink = document.getElementById('docs-download-link');
+  const repoLink = document.getElementById('docs-repo-link');
+
+  if (!modal) return;
+
+  if (metaEl) {
+    metaEl.textContent = `${plugin.category} · v${plugin.version} · Maintained by @${plugin.author}`;
+  }
+  if (titleEl) {
+    titleEl.textContent = plugin.name;
+  }
+  if (tagsEl && Array.isArray(plugin.tags)) {
+    tagsEl.innerHTML = plugin.tags.map((t) => `<span>#${escapeHtml(t)}</span>`).join('<span>·</span>');
+  }
+  if (installEl) {
+    installEl.textContent = plugin.installCommand;
+  }
+  if (readmePanel) {
+    readmePanel.innerHTML = renderMarkdownToHtml(plugin.readme);
+  }
+  if (rawJsonEl) {
+    rawJsonEl.textContent = JSON.stringify(plugin, null, 2);
+  }
+  if (downloadLink) {
+    downloadLink.href = plugin.downloadUrl;
+  }
+  if (repoLink) {
+    const repoMatch = String(plugin.downloadUrl).match(/^(https:\/\/github\.com\/[^/]+\/[^/]+)/);
+    repoLink.href = repoMatch ? repoMatch[1] : `https://github.com/${plugin.author}`;
+  }
+
+  switchDocsModalTab('readme');
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function switchDocsModalTab(tabName) {
+  state.activeDocsTab = tabName;
+  const tabReadme = document.getElementById('docs-tab-readme');
+  const tabJson = document.getElementById('docs-tab-json');
+  const readmePanel = document.getElementById('docs-readme-panel');
+  const jsonPanel = document.getElementById('docs-json-panel');
+
+  const isReadme = tabName === 'readme';
+  if (readmePanel) readmePanel.classList.toggle('hidden', !isReadme);
+  if (jsonPanel) jsonPanel.classList.toggle('hidden', isReadme);
+
+  if (tabReadme && tabJson) {
+    tabReadme.setAttribute('aria-selected', isReadme ? 'true' : 'false');
+    tabJson.setAttribute('aria-selected', !isReadme ? 'true' : 'false');
+    tabReadme.className = isReadme
+      ? 'px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm cursor-pointer'
+      : 'px-3 py-1.5 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer';
+    tabJson.className = !isReadme
+      ? 'px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm cursor-pointer'
+      : 'px-3 py-1.5 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer';
+  }
+}
+
+function closeDocsModal() {
+  const modal = document.getElementById('docs-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  state.activePluginId = null;
+}
+
+/**
+ * Opens & manages the "Submit a Plugin" contributor modal and live JSON builder.
+ */
+function readContributorFormObject() {
+  const name = document.getElementById('contrib-name')?.value.trim() || '';
+  const id = document.getElementById('contrib-id')?.value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-') || '';
+  const author = document.getElementById('contrib-author')?.value.trim().replace(/^@/, '') || '';
+  const version = document.getElementById('contrib-version')?.value.trim().replace(/^v/, '') || '';
+  const category = document.getElementById('contrib-category')?.value.trim() || 'Automation';
+  const description = document.getElementById('contrib-description')?.value.trim() || '';
+  const rawTags = document.getElementById('contrib-tags')?.value || '';
+  const tags = rawTags
+    .split(',')
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
+  const installCommand = document.getElementById('contrib-install')?.value.trim() || '';
+  const downloadUrl = document.getElementById('contrib-download')?.value.trim() || '';
+  const readme = document.getElementById('contrib-readme')?.value.trim() || '';
+
+  return {
+    id,
+    name,
+    description,
+    author,
+    version,
+    category,
+    tags,
+    installCommand,
+    downloadUrl,
+    readme,
+  };
+}
+
+function updateContributorJsonPreview() {
+  const previewEl = document.getElementById('generated-json-preview');
+  if (!previewEl) return;
+  const obj = readContributorFormObject();
+  previewEl.textContent = JSON.stringify(obj, null, 2);
+}
+
+function openSubmitModal() {
+  const modal = document.getElementById('submit-modal');
+  const errEl = document.getElementById('submit-form-error');
+  if (!modal) return;
+  if (errEl) errEl.classList.add('hidden');
+  updateContributorJsonPreview();
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeSubmitModal() {
+  const modal = document.getElementById('submit-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+/**
+ * Theme management (Dark default, toggles .dark on <html>).
+ */
+function applyTheme(theme) {
+  state.theme = theme === 'light' ? 'light' : 'dark';
+  const root = document.documentElement;
+  const iconEl = document.getElementById('theme-toggle-icon');
+  const labelEl = document.getElementById('theme-toggle-label');
+
+  if (state.theme === 'dark') {
+    root.classList.add('dark');
+    if (iconEl) iconEl.innerHTML = ICONS.sun;
+    if (labelEl) labelEl.textContent = 'Light Mode';
+  } else {
+    root.classList.remove('dark');
+    if (iconEl) iconEl.innerHTML = ICONS.moon;
+    if (labelEl) labelEl.textContent = 'Dark Mode';
+  }
+
+  try {
+    localStorage.setItem('forgehub_theme', state.theme);
+  } catch {
+    // Ignore storage errors in restricted sandboxes
+  }
+}
+
+/**
+ * Fetches plugins dynamically from ./plugins.json in the repository root.
+ */
+async function loadPlugins() {
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const errorMsg = document.getElementById('error-message');
+  const grid = document.getElementById('plugin-grid');
+
+  if (loadingState) loadingState.classList.remove('hidden');
+  if (errorState) errorState.classList.add('hidden');
+  if (grid) grid.classList.add('hidden');
+
+  try {
+    const response = await fetch('./plugins.json', { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} while fetching ./plugins.json`);
+    }
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      throw new Error('plugins.json root must be a JSON array of plugin objects.');
+    }
+
+    state.plugins = data;
+    if (loadingState) loadingState.classList.add('hidden');
+
+    renderCategoryFilters();
+    renderPluginGrid();
+  } catch (err) {
+    if (loadingState) loadingState.classList.add('hidden');
+    if (errorState) errorState.classList.remove('hidden');
+    if (errorMsg) {
+      errorMsg.textContent =
+        err instanceof Error
+          ? err.message
+          : 'Failed to load plugins.json from repository root.';
+    }
+  }
+}
+
+/**
+ * Wires all event listeners for search, filters, clipboard actions, modals, and theme switching.
+ */
+function initApp() {
+  // Hydrate static icons
+  const searchIconSlot = document.getElementById('search-icon-slot');
+  if (searchIconSlot) searchIconSlot.innerHTML = ICONS.search;
+
+  let savedTheme = 'dark';
+  try {
+    savedTheme = localStorage.getItem('forgehub_theme') || 'dark';
+  } catch {
+    savedTheme = 'dark';
+  }
+  applyTheme(savedTheme);
+
+  // Theme Toggle
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  themeBtn?.addEventListener('click', () => {
+    applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  // Search Input
+  const searchInput = document.getElementById('plugin-search');
+  searchInput?.addEventListener('input', (e) => {
+    state.searchQuery = e.target.value || '';
+    renderPluginGrid();
+  });
+
+  // Clear Search Button
+  const clearSearchBtn = document.getElementById('clear-search-btn');
+  clearSearchBtn?.addEventListener('click', () => {
+    state.searchQuery = '';
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.focus();
+    }
+    renderPluginGrid();
+  });
+
+  // Sort Selector
+  const sortSelect = document.getElementById('plugin-sort');
+  sortSelect?.addEventListener('change', (e) => {
+    state.sortBy = e.target.value || 'featured';
+    renderPluginGrid();
+  });
+
+  // Category Filter Delegation
+  const categoryContainer = document.getElementById('category-filters');
+  categoryContainer?.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-category]');
+    if (!btn) return;
+    state.category = btn.getAttribute('data-category') || 'All';
+    renderCategoryFilters();
+    renderPluginGrid();
+  });
+
+  // Clear Tag Filter
+  const clearTagBtn = document.getElementById('clear-tag-btn');
+  clearTagBtn?.addEventListener('click', () => {
+    state.activeTag = null;
+    renderPluginGrid();
+  });
+
+  // Reset Filters from Empty State
+  const resetFiltersBtn = document.getElementById('reset-filters-btn');
+  resetFiltersBtn?.addEventListener('click', () => {
+    state.searchQuery = '';
+    state.category = 'All';
+    state.activeTag = null;
+    state.sortBy = 'featured';
+    if (searchInput) searchInput.value = '';
+    if (sortSelect) sortSelect.value = 'featured';
+    renderCategoryFilters();
+    renderPluginGrid();
+  });
+
+  // Retry Fetch Button
+  const retryFetchBtn = document.getElementById('retry-fetch-btn');
+  retryFetchBtn?.addEventListener('click', () => {
+    loadPlugins();
+  });
+
+  // Plugin Grid Delegation (Copy Install, View Source / Docs, Tag Click)
+  const grid = document.getElementById('plugin-grid');
+  grid?.addEventListener('click', async (e) => {
+    const tagBtn = e.target.closest('button[data-tag]');
+    if (tagBtn) {
+      const clickedTag = tagBtn.getAttribute('data-tag');
+      state.activeTag = state.activeTag === clickedTag ? null : clickedTag;
+      renderPluginGrid();
+      return;
+    }
+
+    const actionBtn = e.target.closest('button[data-action]');
+    if (!actionBtn) return;
+
+    const action = actionBtn.getAttribute('data-action');
+    const pluginId = actionBtn.getAttribute('data-plugin-id');
+    const plugin = state.plugins.find((p) => p.id === pluginId);
+    if (!plugin) return;
+
+    if (action === 'copy-install') {
+      await copyToClipboard(plugin.installCommand);
+      const labelSpan = actionBtn.querySelector('[data-copy-label]');
+      if (labelSpan) {
+        const originalText = labelSpan.textContent;
+        labelSpan.textContent = 'Copied!';
+        setTimeout(() => {
+          labelSpan.textContent = originalText;
+        }, 1800);
+      }
+      showToast(`Copied ${plugin.name} install command`, plugin.installCommand);
+    } else if (action === 'view-docs') {
+      openDocsModal(plugin.id);
+    }
+  });
+
+  // Docs Modal Handlers
+  document.getElementById('close-docs-modal-btn')?.addEventListener('click', closeDocsModal);
+  document.getElementById('footer-close-docs-btn')?.addEventListener('click', closeDocsModal);
+  document.getElementById('docs-tab-readme')?.addEventListener('click', () => switchDocsModalTab('readme'));
+  document.getElementById('docs-tab-json')?.addEventListener('click', () => switchDocsModalTab('json'));
+
+  document.getElementById('docs-copy-install-btn')?.addEventListener('click', async () => {
+    const plugin = state.plugins.find((p) => p.id === state.activePluginId);
+    if (!plugin) return;
+    await copyToClipboard(plugin.installCommand);
+    showToast(`Copied ${plugin.name} install snippet`, plugin.installCommand);
+  });
+
+  document.getElementById('docs-copy-json-btn')?.addEventListener('click', async () => {
+    const plugin = state.plugins.find((p) => p.id === state.activePluginId);
+    if (!plugin) return;
+    const raw = JSON.stringify(plugin, null, 2);
+    await copyToClipboard(raw);
+    showToast(`Copied ${plugin.id} manifest JSON`, 'Ready to paste into plugins.json');
+  });
+
+  // Copy buttons inside rendered Markdown code blocks
+  document.getElementById('docs-readme-panel')?.addEventListener('click', async (e) => {
+    const codeCopyBtn = e.target.closest('button[data-copy-encoded]');
+    if (!codeCopyBtn) return;
+    const decoded = decodeURIComponent(codeCopyBtn.getAttribute('data-copy-encoded') || '');
+    await copyToClipboard(decoded);
+    const prev = codeCopyBtn.textContent;
+    codeCopyBtn.textContent = 'Copied!';
+    setTimeout(() => {
+      codeCopyBtn.textContent = prev;
+    }, 1600);
+    showToast('Copied documentation code block', decoded.split('\n')[0]);
+  });
+
+  // Submit a Plugin Modal Handlers
+  document.getElementById('open-submit-modal-btn')?.addEventListener('click', openSubmitModal);
+  document.getElementById('empty-submit-plugin-btn')?.addEventListener('click', openSubmitModal);
+  document.getElementById('schema-open-submit-btn')?.addEventListener('click', openSubmitModal);
+  document.getElementById('close-submit-modal-btn')?.addEventListener('click', closeSubmitModal);
+  document.getElementById('footer-close-submit-btn')?.addEventListener('click', closeSubmitModal);
+
+  const contribForm = document.getElementById('contributor-plugin-form');
+  contribForm?.addEventListener('input', updateContributorJsonPreview);
+
+  document.getElementById('copy-generated-json-btn')?.addEventListener('click', async () => {
+    const obj = readContributorFormObject();
+    const errEl = document.getElementById('submit-form-error');
+    if (!obj.name || !obj.id || !obj.author || !obj.version || !obj.description || !obj.installCommand || !obj.downloadUrl || obj.tags.length === 0) {
+      if (errEl) {
+        errEl.textContent = 'Please complete all required plugin fields before copying the manifest object.';
+        errEl.classList.remove('hidden');
+      }
+      return;
+    }
+    if (errEl) errEl.classList.add('hidden');
+    const jsonString = JSON.stringify(obj, null, 2);
+    await copyToClipboard(jsonString);
+    showToast('Copied plugin JSON entry to clipboard', `Append "${obj.id}" to plugins.json`);
+  });
+
+  contribForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const obj = readContributorFormObject();
+    const errEl = document.getElementById('submit-form-error');
+
+    if (
+      !obj.name ||
+      !obj.id ||
+      !obj.author ||
+      !obj.version ||
+      !obj.description ||
+      !obj.installCommand ||
+      !obj.downloadUrl ||
+      !obj.readme ||
+      obj.tags.length === 0
+    ) {
+      if (errEl) {
+        errEl.textContent = 'All manifest fields (including tags and readme) are required to add a plugin.';
+        errEl.classList.remove('hidden');
+      }
+      return;
+    }
+
+    if (errEl) errEl.classList.add('hidden');
+
+    const existingIdx = state.plugins.findIndex((p) => p.id === obj.id);
+    if (existingIdx >= 0) {
+      state.plugins[existingIdx] = obj;
+    } else {
+      state.plugins.unshift(obj);
+    }
+
+    state.category = 'All';
+    state.searchQuery = '';
+    state.activeTag = null;
+    if (searchInput) searchInput.value = '';
+
+    renderCategoryFilters();
+    renderPluginGrid();
+    closeSubmitModal();
+    showToast(`Added "${obj.name}" to live registry`, `Category: ${obj.category} · v${obj.version}`);
+  });
+
+  // Backdrop click dismissal for modals
+  const docsModal = document.getElementById('docs-modal');
+  docsModal?.addEventListener('click', (e) => {
+    if (e.target === docsModal) closeDocsModal();
+  });
+
+  const submitModal = document.getElementById('submit-modal');
+  submitModal?.addEventListener('click', (e) => {
+    if (e.target === submitModal) closeSubmitModal();
+  });
+
+  // Global Keyboard Shortcuts ('/' to focus search, 'Escape' to close modals)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDocsModal();
+      closeSubmitModal();
+      return;
+    }
+    if (
+      e.key === '/' &&
+      document.activeElement &&
+      !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)
+    ) {
+      e.preventDefault();
+      searchInput?.focus();
+    }
+  });
+
+  loadPlugins();
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+}
