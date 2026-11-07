@@ -42,6 +42,15 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/**
+ * Formats numeric star counts with locale thousands separators for tabular display.
+ */
+function formatStars(stars) {
+  const num = Number(stars);
+  if (!Number.isFinite(num) || num < 0) return '0';
+  return Math.floor(num).toLocaleString('en-US');
+}
+
 async function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try {
@@ -133,7 +142,9 @@ export function filterAndSortPlugins(plugins, currentState) {
   });
 
   const sorted = [...filtered];
-  if (currentState.sortBy === 'name') {
+  if (currentState.sortBy === 'stars') {
+    sorted.sort((a, b) => (Number(b.stars) || 0) - (Number(a.stars) || 0));
+  } else if (currentState.sortBy === 'name') {
     sorted.sort((a, b) => String(a.name).localeCompare(String(b.name)));
   } else if (currentState.sortBy === 'version') {
     sorted.sort((a, b) =>
@@ -437,12 +448,23 @@ function renderPluginGrid() {
           class="flex flex-col justify-between p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors space-y-5"
         >
           <div class="space-y-3">
-            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
-              <span class="font-semibold text-indigo-600 dark:text-indigo-400">${escapeHtml(plugin.category)}</span>
-              <span aria-hidden="true">·</span>
-              <span>v${escapeHtml(plugin.version)}</span>
-              <span aria-hidden="true">·</span>
-              <span>by @${escapeHtml(plugin.author)}</span>
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-indigo-600 dark:text-indigo-400">${escapeHtml(plugin.category)}</span>
+                <span aria-hidden="true">·</span>
+                <span>v${escapeHtml(plugin.version)}</span>
+                <span aria-hidden="true">·</span>
+                <span>by @${escapeHtml(plugin.author)}</span>
+              </div>
+              <span
+                data-testid="plugin-stars-${escapeHtml(plugin.id)}"
+                class="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400 tabular-nums"
+                title="${formatStars(plugin.stars)} community stars"
+              >
+                <span aria-hidden="true">★</span>
+                <span>${formatStars(plugin.stars)}</span>
+                <span class="text-slate-500 dark:text-slate-400 font-normal">stars</span>
+              </span>
             </div>
 
             <div class="space-y-1.5">
@@ -531,7 +553,7 @@ function openDocsModal(pluginId) {
   if (!modal) return;
 
   if (metaEl) {
-    metaEl.textContent = `${plugin.category} · v${plugin.version} · Maintained by @${plugin.author}`;
+    metaEl.textContent = `${plugin.category} · v${plugin.version} · ★ ${formatStars(plugin.stars)} stars · Maintained by @${plugin.author}`;
   }
   if (titleEl) {
     titleEl.textContent = plugin.name;
@@ -598,6 +620,9 @@ function readContributorFormObject() {
   const id = document.getElementById('contrib-id')?.value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-') || '';
   const author = document.getElementById('contrib-author')?.value.trim().replace(/^@/, '') || '';
   const version = document.getElementById('contrib-version')?.value.trim().replace(/^v/, '') || '';
+  const rawStars = document.getElementById('contrib-stars')?.value ?? '0';
+  const parsedStars = Number(rawStars);
+  const stars = Number.isFinite(parsedStars) && parsedStars >= 0 ? Math.floor(parsedStars) : 0;
   const category = document.getElementById('contrib-category')?.value.trim() || 'Automation';
   const description = document.getElementById('contrib-description')?.value.trim() || '';
   const rawTags = document.getElementById('contrib-tags')?.value || '';
@@ -615,6 +640,7 @@ function readContributorFormObject() {
     description,
     author,
     version,
+    stars,
     category,
     tags,
     installCommand,
@@ -910,7 +936,10 @@ function initApp() {
     renderCategoryFilters();
     renderPluginGrid();
     closeSubmitModal();
-    showToast(`Added "${obj.name}" to live registry`, `Category: ${obj.category} · v${obj.version}`);
+    showToast(
+      `Added "${obj.name}" to live registry`,
+      `Category: ${obj.category} · v${obj.version} · ★ ${formatStars(obj.stars)} stars`
+    );
   });
 
   const docsModal = document.getElementById('docs-modal');

@@ -15,7 +15,7 @@ const pluginsJsonPath = path.resolve(process.cwd(), 'plugins.json');
 const rawJson = fs.readFileSync(pluginsJsonPath, 'utf-8');
 const samplePlugins: PluginItem[] = JSON.parse(rawJson);
 
-test('plugins.json contains 4 realistic plugins adhering strictly to required schema', () => {
+test('plugins.json contains 4 realistic plugins adhering strictly to required schema including numeric stars', () => {
   assert.equal(Array.isArray(samplePlugins), true);
   assert.equal(samplePlugins.length, 4);
 
@@ -26,7 +26,33 @@ test('plugins.json contains 4 realistic plugins adhering strictly to required sc
       true,
       `Plugin "${plugin.id}" failed validation: ${validation.errors.join(', ')}`
     );
+    assert.equal(typeof plugin.stars, 'number');
+    assert.equal(plugin.stars > 0, true);
   }
+
+  const invalidStarsCheck = validatePluginSchema({
+    ...samplePlugins[0],
+    stars: -10,
+  });
+  assert.equal(invalidStarsCheck.valid, false);
+});
+
+test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is "stars"', () => {
+  const byStars = filterAndSortPlugins(samplePlugins, {
+    searchQuery: '',
+    category: 'All',
+    activeTag: null,
+    sortBy: 'stars',
+  });
+  assert.equal(byStars.length, 4);
+  assert.deepEqual(
+    byStars.map((p) => p.id),
+    ['cmdk-palette-lite', 'gh-release-sentinel', 'env-vault-sync', 'edge-rate-guard']
+  );
+  assert.deepEqual(
+    byStars.map((p) => p.stars),
+    [2490, 1840, 1320, 945]
+  );
 });
 
 test('filterAndSortPlugins filters by title, description, and tags in real-time', () => {
@@ -96,12 +122,13 @@ test('extractCategories returns counts for All, Automation, UI, CLI, and API', (
   }
 });
 
-test('buildContributorPluginJson generates valid schema-compliant JSON', () => {
+test('buildContributorPluginJson generates valid schema-compliant JSON including numeric stars', () => {
   const generatedStr = buildContributorPluginJson({
     id: 'My Super Plugin!',
     name: 'Super Plugin',
     author: '@devuser',
     version: 'v1.2.0',
+    stars: 412,
     category: 'CLI',
     tags: ['cli', 'fast'],
     installCommand: 'npm i -g super-plugin',
@@ -112,6 +139,7 @@ test('buildContributorPluginJson generates valid schema-compliant JSON', () => {
   assert.equal(parsed.id, 'my-super-plugin-');
   assert.equal(parsed.author, 'devuser');
   assert.equal(parsed.version, '1.2.0');
+  assert.equal(parsed.stars, 412);
   const check = validatePluginSchema(parsed);
   assert.equal(check.valid, true);
 });

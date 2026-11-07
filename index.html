@@ -186,6 +186,7 @@
                 class="px-3 py-2.5 text-xs font-medium bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
                 <option value="featured">Featured Order</option>
+                <option value="stars">Most Stars</option>
                 <option value="name">Name (A–Z)</option>
                 <option value="version">Version (Newest)</option>
               </select>
@@ -308,7 +309,7 @@
               01. Single-File Manifest Schema (<code class="font-mono text-xl text-indigo-600 dark:text-indigo-400">plugins.json</code>)
             </h2>
             <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-              Every card, install snippet, and documentation modal in ForgeHub is generated directly from objects in <code class="font-mono text-xs">plugins.json</code>. Contributors add plugins by appending an object with these ten required properties.
+              Every card, install snippet, and documentation modal in ForgeHub is generated directly from objects in <code class="font-mono text-xs">plugins.json</code>. Contributors add plugins by appending an object with these eleven required properties.
             </p>
           </div>
           <button
@@ -360,6 +361,12 @@
                 <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
                 <td class="py-3 px-4 text-slate-500">SemVer (<code class="font-mono">X.Y.Z</code>)</td>
                 <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Semantic version string rendered with tabular numerals.</td>
+              </tr>
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">stars</td>
+                <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">number</td>
+                <td class="py-3 px-4 text-slate-500">Non-negative integer (<code class="font-mono">&gt;= 0</code>)</td>
+                <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Community popularity count rendered with tabular numerals and used when sorting by Most Stars.</td>
               </tr>
               <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                 <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">category</td>
@@ -678,7 +685,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
                 <div>
                   <label for="contrib-author" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     GitHub Author
@@ -703,6 +710,21 @@
                     value="1.0.0"
                     placeholder="1.0.0"
                     class="w-full px-3 py-2 text-xs font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="contrib-stars" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Stars
+                  </label>
+                  <input
+                    id="contrib-stars"
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value="340"
+                    placeholder="0"
+                    class="w-full px-3 py-2 text-xs font-mono tabular-nums bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>

@@ -4,6 +4,7 @@ export interface PluginItem {
   description: string;
   author: string;
   version: string;
+  stars: number;
   category: 'Automation' | 'UI' | 'CLI' | 'API' | string;
   tags: string[];
   installCommand: string;
@@ -15,7 +16,7 @@ export interface FilterState {
   searchQuery: string;
   category: string;
   activeTag: string | null;
-  sortBy: 'featured' | 'name' | 'version';
+  sortBy: 'featured' | 'stars' | 'name' | 'version';
 }
 
 const REQUIRED_FIELDS: (keyof PluginItem)[] = [
@@ -24,6 +25,7 @@ const REQUIRED_FIELDS: (keyof PluginItem)[] = [
   'description',
   'author',
   'version',
+  'stars',
   'category',
   'tags',
   'installCommand',
@@ -263,6 +265,10 @@ export function validatePluginSchema(item: unknown): { valid: boolean; errors: s
       ) {
         errors.push('Field "tags" must be a non-empty array of strings.');
       }
+    } else if (field === 'stars') {
+      if (typeof obj.stars !== 'number' || !Number.isFinite(obj.stars) || obj.stars < 0) {
+        errors.push('Field "stars" must be a non-negative number.');
+      }
     } else if (typeof obj[field] !== 'string' || (obj[field] as string).trim().length === 0) {
       errors.push(`Field "${field}" must be a non-empty string.`);
     }
@@ -301,7 +307,9 @@ export function filterAndSortPlugins(plugins: PluginItem[], state: FilterState):
   });
 
   const sorted = [...filtered];
-  if (state.sortBy === 'name') {
+  if (state.sortBy === 'stars') {
+    sorted.sort((a, b) => (Number(b.stars) || 0) - (Number(a.stars) || 0));
+  } else if (state.sortBy === 'name') {
     sorted.sort((a, b) => a.name.localeCompare(b.name));
   } else if (state.sortBy === 'version') {
     sorted.sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }));
@@ -335,6 +343,11 @@ export function extractCategories(plugins: PluginItem[]): { name: string; count:
 }
 
 export function buildContributorPluginJson(input: Partial<PluginItem>): string {
+  const normalizedStars =
+    typeof input.stars === 'number' && Number.isFinite(input.stars) && input.stars >= 0
+      ? Math.floor(input.stars)
+      : 0;
+
   const normalized: PluginItem = {
     id: (input.id || 'my-custom-plugin').trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-'),
     name: (input.name || 'My Custom Plugin').trim(),
@@ -343,6 +356,7 @@ export function buildContributorPluginJson(input: Partial<PluginItem>): string {
     ).trim(),
     author: (input.author || 'your-github-handle').trim().replace(/^@/, ''),
     version: (input.version || '1.0.0').trim().replace(/^v/, ''),
+    stars: normalizedStars,
     category: (input.category || 'Automation').trim(),
     tags:
       Array.isArray(input.tags) && input.tags.length > 0
