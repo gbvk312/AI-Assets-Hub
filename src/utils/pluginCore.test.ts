@@ -19,9 +19,9 @@ const pluginsJsonPath = path.resolve(process.cwd(), 'plugins.json');
 const rawJson = fs.readFileSync(pluginsJsonPath, 'utf-8');
 const samplePlugins: PluginItem[] = JSON.parse(rawJson);
 
-test('plugins.json contains 5 realistic plugins adhering strictly to required schema including numeric stars', () => {
+test('plugins.json contains 12 realistic plugins adhering strictly to required schema including numeric stars', () => {
   assert.equal(Array.isArray(samplePlugins), true);
-  assert.equal(samplePlugins.length, 5);
+  assert.equal(samplePlugins.length, 12);
 
   for (const plugin of samplePlugins) {
     const validation = validatePluginSchema(plugin);
@@ -53,9 +53,16 @@ test('isMostPopularPlugin accurately identifies plugins exceeding the 500 stars 
     .filter((p) => isMostPopularPlugin(p.stars))
     .map((p) => p.id);
   assert.deepEqual(popularIds, [
+    'gh-shadcn-ui-cli',
+    'gh-mcp-servers',
+    'gh-cli-official',
     'gh-find-skills',
-    'gh-release-sentinel',
+    'gh-vercel-react-skills',
+    'gh-anthropic-frontend-design',
+    'gh-obra-superpowers',
+    'gh-actions-checkout',
     'cmdk-palette-lite',
+    'gh-release-sentinel',
     'env-vault-sync',
   ]);
 });
@@ -67,11 +74,18 @@ test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is
     activeTag: null,
     sortBy: 'stars',
   });
-  assert.equal(byStars.length, 5);
+  assert.equal(byStars.length, 12);
   assert.deepEqual(
     byStars.map((p) => p.id),
     [
+      'gh-shadcn-ui-cli',
+      'gh-mcp-servers',
+      'gh-cli-official',
       'gh-find-skills',
+      'gh-vercel-react-skills',
+      'gh-anthropic-frontend-design',
+      'gh-obra-superpowers',
+      'gh-actions-checkout',
       'cmdk-palette-lite',
       'gh-release-sentinel',
       'env-vault-sync',
@@ -80,7 +94,7 @@ test('filterAndSortPlugins sorts plugins by most stars descending when sortBy is
   );
   assert.deepEqual(
     byStars.map((p) => p.stars),
-    [38400, 2490, 1840, 1320, 380]
+    [108500, 74200, 39100, 38400, 33200, 29800, 26500, 6450, 2490, 1840, 1320, 380]
   );
 });
 
@@ -120,8 +134,8 @@ test('filterAndSortPlugins filters by category and activeTag accurately', () => 
     activeTag: null,
     sortBy: 'featured',
   });
-  assert.equal(uiOnly.length, 1);
-  assert.equal(uiOnly[0].id, 'cmdk-palette-lite');
+  assert.equal(uiOnly.length, 4);
+  assert.equal(uiOnly[0].id, 'gh-shadcn-ui-cli');
 
   const cliWithTag = filterAndSortPlugins(samplePlugins, {
     searchQuery: '',
@@ -144,12 +158,11 @@ test('filterAndSortPlugins filters by category and activeTag accurately', () => 
 test('extractCategories returns counts for All, Automation, UI, CLI, and API', () => {
   const categories = extractCategories(samplePlugins);
   const allCat = categories.find((c) => c.name === 'All');
-  assert.equal(allCat?.count, 5);
-  assert.equal(categories.find((c) => c.name === 'CLI')?.count, 2);
-  for (const expected of ['Automation', 'UI', 'API']) {
-    const found = categories.find((c) => c.name === expected);
-    assert.equal(found?.count, 1, `Expected category ${expected} to have count 1`);
-  }
+  assert.equal(allCat?.count, 12);
+  assert.equal(categories.find((c) => c.name === 'Automation')?.count, 3);
+  assert.equal(categories.find((c) => c.name === 'UI')?.count, 4);
+  assert.equal(categories.find((c) => c.name === 'CLI')?.count, 3);
+  assert.equal(categories.find((c) => c.name === 'API')?.count, 2);
 });
 
 test('buildContributorPluginJson generates valid schema-compliant JSON including numeric stars', () => {

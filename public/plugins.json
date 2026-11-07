@@ -1,5 +1,44 @@
 [
   {
+    "id": "gh-shadcn-ui-cli",
+    "name": "shadcn/ui Registry & Skill CLI",
+    "description": "The highest-rated open-source UI component registry on GitHub. Copies accessible Radix UI and Tailwind CSS primitives directly into your project source tree.",
+    "author": "shadcn",
+    "version": "2.5.0",
+    "stars": 108500,
+    "category": "UI",
+    "tags": ["shadcn-ui", "tailwind-css", "radix-ui", "design-system", "github"],
+    "installCommand": "npx shadcn@latest init && npx shadcn@latest add button dialog",
+    "downloadUrl": "https://github.com/shadcn-ui/ui/archive/refs/heads/main.tar.gz",
+    "readme": "# shadcn/ui Registry & Skill CLI (`shadcn-ui/ui`)\n\nRanked among the **most-starred developer UI projects on GitHub** (`108,500+` stars), **shadcn/ui** distributes open-code, WAI-ARIA compliant component primitives via a zero-lock-in JSON registry specification.\n\n> **Registry Architecture:** Instead of installing opaque npm wrapper packages, the `shadcn` CLI resolves component dependencies from `registry.json` and writes editable TypeScript + Tailwind CSS source directly into your repository.\n\n## Quick Start\n\n```bash\n# Initialize your project configuration (components.json)\nnpx shadcn@latest init\n\n# Add individual components or custom GitHub registry URLs\nnpx shadcn@latest add button dialog dropdown-menu table\n```\n\n## CLI Commands & Flags\n\n| Command | Flag | Description |\n| --- | --- | --- |\n| `init` | `--defaults` | Initializes `components.json` and Tailwind CSS variables |\n| `add [component]` | `--overwrite` | Downloads and writes selected component source files |\n| `diff [component]` | `--yes` | Inspects upstream registry updates against local edits |\n| `build` | `--output` | Compiles a custom static `registry.json` for GitHub Pages |"
+  },
+  {
+    "id": "gh-mcp-servers",
+    "name": "Model Context Protocol (MCP) Servers",
+    "description": "Official top-rated Model Context Protocol reference servers connecting coding agents to GitHub APIs, Git repositories, PostgreSQL, and headless browsers.",
+    "author": "modelcontextprotocol",
+    "version": "1.9.0",
+    "stars": 74200,
+    "category": "API",
+    "tags": ["mcp", "github-api", "agent-tools", "json-rpc", "context"],
+    "installCommand": "npx -y @modelcontextprotocol/server-github",
+    "downloadUrl": "https://github.com/modelcontextprotocol/servers/archive/refs/heads/main.tar.gz",
+    "readme": "# Model Context Protocol Servers (`modelcontextprotocol/servers`)\n\nThe official **Model Context Protocol (MCP)** reference server collection (`74,200+` GitHub stars), providing standardized JSON-RPC tool integrations for GitHub, Git, filesystem operations, and databases.\n\n> **Standardized Tooling:** MCP servers expose strongly typed resources, prompts, and execution tools over `stdio` or Server-Sent Events (`SSE`).\n\n## One-Line Server Launch\n\n```bash\nnpx -y @modelcontextprotocol/server-github\n```\n\n## Configuration Example (`mcp.json`)\n\n```json\n{\n  \"mcpServers\": {\n    \"github\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n      \"env\": {\n        \"GITHUB_PERSONAL_ACCESS_token\": \"<YOUR_TOKEN>\"\n      }\n    },\n    \"filesystem\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"./workspace\"]\n    }\n  }\n}\n```\n\n## Most Used Official MCP Servers\n\n| Package | Category | Primary Capabilities |\n| --- | --- | --- |\n| `@modelcontextprotocol/server-github` | `API` | Repository search, PR management, issue triage, file commits |\n| `@modelcontextprotocol/server-git` | `CLI` | Local Git log inspection, diff generation, branch switching |\n| `@modelcontextprotocol/server-postgres` | `API` | Read-only schema inspection and parameterized SQL queries |"
+  },
+  {
+    "id": "gh-cli-official",
+    "name": "GitHub CLI & Extension Runtime",
+    "description": "GitHub's official command-line tool and extension hub for managing pull requests, Actions workflow runs, releases, and interactive terminal dashboards.",
+    "author": "cli",
+    "version": "2.67.0",
+    "stars": 39100,
+    "category": "CLI",
+    "tags": ["github-cli", "gh-extension", "pull-requests", "devops", "terminal"],
+    "installCommand": "gh extension install dlvhdr/gh-dash",
+    "downloadUrl": "https://github.com/cli/cli/releases/latest/download/gh_2.67.0_linux_amd64.tar.gz",
+    "readme": "# GitHub CLI & Extension Runtime (`cli/cli`)\n\n`gh` is **GitHub on the command line** (`39,100+` GitHub stars). It brings pull requests, issues, GitHub Actions workflow runs, and a rich community extension ecosystem directly to your terminal.\n\n> **Extension Architecture:** Any GitHub repository prefixed with `gh-` containing an executable script can be installed as a native `gh` subcommand.\n\n## Install Top Community Extensions\n\n```bash\n# Install the #1 rated terminal dashboard extension for PRs and Issues\ngh extension install dlvhdr/gh-dash\n\n# Search all available extensions across GitHub\ngh extension search\n\n# Inspect live GitHub Actions workflow runs\ngh run watch\n```\n\n## Essential Commands\n\n| Command | Action |\n| --- | --- |\n| `gh pr create --fill` | Opens a Pull Request populated from commit history |\n| `gh pr checkout <number>` | Fetches and checks out a contributor PR branch locally |\n| `gh run list --limit 10` | Displays recent GitHub Actions CI/CD pipeline statuses |\n| `gh release create v1.0.0` | Publishes a tagged GitHub Release with binary assets |"
+  },
+  {
     "id": "gh-find-skills",
     "name": "Find Skills (skills.sh)",
     "description": "The #1 most-installed GitHub agent skill from vercel-labs/skills. Autonomously discovers, searches, and installs SKILL.md capabilities across GitHub repositories via the npx skills CLI.",
@@ -10,20 +49,59 @@
     "tags": ["agent-skills", "skill-md", "github", "skills-sh", "cli"],
     "installCommand": "npx skills add vercel-labs/skills --skill find-skills",
     "downloadUrl": "https://github.com/vercel-labs/skills/archive/refs/heads/main.tar.gz",
-    "readme": "# Find Skills (`vercel-labs/skills`)\n\nThe **#1 most-used skill on GitHub** and the official discovery engine for the open [skills.sh](https://skills.sh) ecosystem (`38,400+` GitHub stars and `700k+` installations).\n\n> **Why it leads GitHub:** `find-skills` equips coding agents and developers with progressive-disclosure `SKILL.md` capabilities—allowing environments like Claude Code, Cursor, GitHub Copilot, and Gemini CLI to search and install domain-specific skills on demand.\n\n## One-Line Installation\n\nInstall the `find-skills` capability directly from [`vercel-labs/skills`](https://github.com/vercel-labs/skills) into your workspace:\n\n```bash\nnpx skills add vercel-labs/skills --skill find-skills\n```\n\n## Core CLI Commands\n\n```bash\n# Interactively search all indexed GitHub SKILL.md repositories\nnpx skills find\n\n# Search for a specific domain capability across GitHub\nnpx skills find \"react performance\"\n\n# Install any GitHub-hosted skill into your local agent directory\nnpx skills add vercel-labs/agent-skills --skill vercel-react-best-practices\n\n# List and verify installed skills in your project\nnpx skills list\n```\n\n## Top GitHub Skills Index (Reference Leaderboard)\n\n| Rank | Skill / Repository | Maintainer | Stars / Installs | Primary Use Case |\n| --- | --- | --- | --- | --- |\n| `#1` | `find-skills` (`vercel-labs/skills`) | `@vercel-labs` | `38,400 ★` | Meta-skill for searching & installing GitHub `SKILL.md` packages |\n| `#2` | `vercel-react-best-practices` | `@vercel-labs` | `33,200 ★` | React & Next.js performance, server actions, and bundle optimization |\n| `#3` | `frontend-design` (`anthropics/skills`) | `@anthropics` | `29,800 ★` | Production-grade UI architecture, typography, and layout systems |\n| `#4` | `brainstorming` (`obra/superpowers`) | `@obra` | `26,500 ★` | Structured architectural planning and specification refinement |\n| `#5` | `actions/checkout` | `@actions` | `6,400 ★` | Most-used GitHub Actions workflow step for repository cloning |\n\n## Standard `SKILL.md` Structure\n\nEvery GitHub agent skill follows a zero-build directory contract containing a `SKILL.md` manifest with YAML frontmatter:\n\n```markdown\n---\nname: find-skills\ndescription: >-\n  Helps users discover and install agent skills when they ask questions\n  like \"how do I do X\" or \"find a skill for X\" using the skills CLI.\n---\n\n# Find Skills\n\nWhen a task requires specialized domain workflows, query the GitHub skill registry:\n1. Run `npx skills find <query>` to locate matching community or official skills.\n2. Run `npx skills add <owner>/<repo> --skill <name>` to mount the instructions.\n```"
+    "readme": "# Find Skills (`vercel-labs/skills`)\n\nThe **#1 most-used skill on GitHub** and the official discovery engine for the open [skills.sh](https://skills.sh) ecosystem (`38,400+` GitHub stars and `700k+` installations).\n\n> **Why it leads GitHub:** `find-skills` equips coding agents and developers with progressive-disclosure `SKILL.md` capabilities—allowing environments like Claude Code, Cursor, GitHub Copilot, and Gemini CLI to search and install domain-specific skills on demand.\n\n## One-Line Installation\n\nInstall the `find-skills` capability directly from [`vercel-labs/skills`](https://github.com/vercel-labs/skills) into your workspace:\n\n```bash\nnpx skills add vercel-labs/skills --skill find-skills\n```\n\n## Core CLI Commands\n\n```bash\n# Interactively search all indexed GitHub SKILL.md repositories\nnpx skills find\n\n# Search for a specific domain capability across GitHub\nnpx skills find \"react performance\"\n\n# Install any GitHub-hosted skill into your local agent directory\nnpx skills add vercel-labs/agent-skills --skill vercel-react-best-practices\n\n# List and verify installed skills in your project\nnpx skills list\n```\n\n## Top GitHub Skills Index (Reference Leaderboard)\n\n| Rank | Skill / Repository | Maintainer | Stars / Installs | Primary Use Case |\n| --- | --- | --- | --- | --- |\n| `#1` | `find-skills` (`vercel-labs/skills`) | `@vercel-labs` | `38,400 ★` | Meta-skill for searching & installing GitHub `SKILL.md` packages |\n| `#2` | `vercel-react-best-practices` | `@vercel-labs` | `33,200 ★` | React & Next.js performance, server actions, and bundle optimization |\n| `#3` | `frontend-design` (`anthropics/skills`) | `@anthropics` | `29,800 ★` | Production-grade UI architecture, typography, and layout systems |\n| `#4` | `brainstorming` (`obra/superpowers`) | `@obra` | `26,500 ★` | Structured architectural planning and specification refinement |\n| `#5` | `actions/checkout` | `@actions` | `6,450 ★` | Most-used GitHub Actions workflow step for repository cloning |"
   },
   {
-    "id": "gh-release-sentinel",
-    "name": "Release Sentinel",
-    "description": "Zero-config semantic versioning, conventional commit parser, and automated GitHub release notes generator with monorepo tag isolation.",
-    "author": "alexrivera",
-    "version": "2.4.1",
-    "stars": 1840,
+    "id": "gh-vercel-react-skills",
+    "name": "Vercel React & Next.js Best Practices",
+    "description": "Official Vercel engineering skill pack with 40+ rules for React 19, Next.js App Router, Server Actions, bundle optimization, and rendering performance.",
+    "author": "vercel-labs",
+    "version": "2.1.0",
+    "stars": 33200,
+    "category": "UI",
+    "tags": ["react", "nextjs", "performance", "agent-skills", "vercel"],
+    "installCommand": "npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices",
+    "downloadUrl": "https://github.com/vercel-labs/agent-skills/archive/refs/heads/main.tar.gz",
+    "readme": "# Vercel React & Next.js Best Practices (`vercel-labs/agent-skills`)\n\nMaintained by **Vercel Labs** (`33,200+` GitHub stars), this skill codifies over **40 production performance rules** across 8 categories for React 19 and Next.js applications.\n\n> **Zero Waterfall Discipline:** Eliminates sequential `await` waterfalls, enforces dynamic code-splitting, and optimizes React Server Component serialization.\n\n## Installation\n\n```bash\nnpx skills add vercel-labs/agent-skills --skill vercel-react-best-practices\n```\n\n## Rule Categories\n\n| Priority | Category | Impact |\n| --- | --- | --- |\n| `P0` | Eliminating Request Waterfalls | Parallelizes independent `Promise.all` fetches and preloads |\n| `P0` | Bundle Size Optimization | Prevents barrel-file bloat and enforces lazy imports |\n| `P1` | Server-Side Performance | Optimizes RSC caching and streaming Suspense boundaries |\n| `P2` | Re-render Minimization | Stabilizes derived state without unnecessary `useEffect` chains |"
+  },
+  {
+    "id": "gh-anthropic-frontend-design",
+    "name": "Anthropic Frontend Design Skill",
+    "description": "Anthropic's official production UI architecture skill for crafting distinctive, high-contrast web interfaces, typographic hierarchies, and responsive layouts.",
+    "author": "anthropics",
+    "version": "1.6.0",
+    "stars": 29800,
+    "category": "UI",
+    "tags": ["frontend-design", "ui-ux", "typography", "tailwind", "agent-skills"],
+    "installCommand": "npx skills add anthropics/skills --skill frontend-design",
+    "downloadUrl": "https://github.com/anthropics/skills/archive/refs/heads/main.tar.gz",
+    "readme": "# Anthropic Frontend Design Skill (`anthropics/skills`)\n\nFrom the official **`anthropics/skills`** repository (`29,800+` GitHub stars), `frontend-design` enforces craft-led interface design, intentional typographic scales, and accessible color contrast.\n\n> **Design System First:** Replaces generic boilerplate templates with structured grid alignment, tabular numeric discipline, and semantic HTML landmarks.\n\n## Installation\n\n```bash\nnpx skills add anthropics/skills --skill frontend-design\n```\n\n## Core Architectural Pillars\n\n- **Typographic Hierarchy:** Pairs expressive display headings with high-legibility UI sans and monospace tabular numerals.\n- **Spatial Discipline:** Enforces consistent viewport budgets, card density caps, and responsive breakpoints (`390px` mobile to `1440px` desktop).\n- **Accessible Semantics:** Uses native `<dialog>`, `<nav>`, `<main>`, and explicit `aria-label` attributes on all interactive controls."
+  },
+  {
+    "id": "gh-obra-superpowers",
+    "name": "Superpowers TDD & Spec Workflow",
+    "description": "Most-starred community agent skill workflow on GitHub for structured architectural specs, test-driven development loops, and automated code review.",
+    "author": "obra",
+    "version": "3.2.0",
+    "stars": 26500,
     "category": "Automation",
-    "tags": ["github-actions", "semver", "changelog", "ci-cd"],
-    "installCommand": "npx @forgehub/release-sentinel init --workflow",
-    "downloadUrl": "https://github.com/forgehub-registry/release-sentinel/releases/latest/download/release-sentinel.tar.gz",
-    "readme": "# Release Sentinel\n\nAutomated **semantic versioning** and *changelog generation* designed for zero-maintenance [GitHub Actions](https://docs.github.com/en/actions) pipelines.\n\n> **Note:** Release Sentinel requires `contents: write` permission in your workflow token to tag commits and publish release assets.\n\n## Quick Start\n\n1. Run the interactive initializer in your repository root.\n2. Commit the generated `.github/workflows/release.yml` workflow.\n3. Push any [Conventional Commit](https://www.conventionalcommits.org) to `main`.\n\n```bash\nnpx @forgehub/release-sentinel init --workflow\n```\n\n## CLI Flags & Options\n\n| Flag | Type | Default | Description |\n| --- | --- | --- | --- |\n| `--workflow` | `boolean` | `true` | Scaffolds the GitHub Actions YAML workflow |\n| `--dry-run` | `boolean` | `false` | Computes next SemVer bump without pushing tags |\n| `--changelog-file` | `string` | `CHANGELOG.md` | Output file path for generated release notes |\n\n## GitHub Actions Configuration\n\nAdd the following step to `.github/workflows/release.yml`:\n\n```yaml\nname: Release Pipeline\non:\n  push:\n    branches: [main]\n\njobs:\n  release:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: write\n      pull-requests: write\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - name: Run Release Sentinel\n        uses: forgehub-registry/release-sentinel@v2.4.1\n        with:\n          dry-run: false\n          changelog-file: CHANGELOG.md\n```\n\n## Key Capabilities\n\n- **Strict Commit Parsing:** Evaluates `feat:`, `fix:`, and `BREAKING CHANGE:` commits per *Conventional Commits 1.0.0*.\n- **Automated Manifest Sync:** Calculates the next SemVer bump and updates `package.json` or `plugins.json`.\n- **Contributor Attribution:** Generates categorized Markdown release notes with commit SHA links."
+    "tags": ["tdd", "architecture", "code-review", "agent-skills", "workflow"],
+    "installCommand": "npx skills add obra/superpowers --skill brainstorming",
+    "downloadUrl": "https://github.com/obra/superpowers/archive/refs/heads/main.tar.gz",
+    "readme": "# Superpowers TDD & Spec Workflow (`obra/superpowers`)\n\nThe **#1 community-authored agent skill suite on GitHub** (`26,500+` stars), providing composable workflows for architectural specification (`brainstorming`), strict red-green-refactor unit testing (`test-driven-development`), and root-cause debugging.\n\n## Installation\n\n```bash\nnpx skills add obra/superpowers --skill brainstorming\nnpx skills add obra/superpowers --skill test-driven-development\n```\n\n## Included Workflow Skills\n\n| Skill Name | Stage | Behavior |\n| --- | --- | --- |\n| `brainstorming` | Pre-Build | Refines ambiguous prompts into concrete acceptance criteria |\n| `writing-plans` | Architecture | Decomposes features into bite-sized, verifiable file tasks |\n| `test-driven-development` | Implementation | Requires failing unit tests before writing production logic |\n| `systematic-debugging` | Verification | Isolates root causes via deterministic reproduction tests |"
+  },
+  {
+    "id": "gh-actions-checkout",
+    "name": "GitHub Actions Checkout v4",
+    "description": "The #1 most-used GitHub Action across all repositories worldwide. Checks out your Git repository onto CI/CD runners with shallow fetch and submodule support.",
+    "author": "actions",
+    "version": "4.2.2",
+    "stars": 6450,
+    "category": "Automation",
+    "tags": ["github-actions", "ci-cd", "git", "workflows", "automation"],
+    "installCommand": "uses: actions/checkout@v4",
+    "downloadUrl": "https://github.com/actions/checkout/archive/refs/tags/v4.2.2.tar.gz",
+    "readme": "# GitHub Actions Checkout (`actions/checkout@v4`)\n\nUsed in **over 95% of all GitHub Actions workflows globally**, `actions/checkout` is the foundational CI/CD building block on GitHub (`6,450+` stars, millions of dependent repositories).\n\n> **Performance by Default:** Fetches only a single commit (`fetch-depth: 1`) by default to minimize clone latency in CI pipelines.\n\n## Workflow Usage\n\n```yaml\nsteps:\n  - name: Checkout Repository\n    uses: actions/checkout@v4\n    with:\n      fetch-depth: 0\n      submodules: recursive\n```\n\n## Key Inputs\n\n| Input | Default | Description |\n| --- | --- | --- |\n| `repository` | `${{ github.repository }}` | Repository name with owner (e.g. `actions/checkout`) |\n| `ref` |Triggering SHA/branch | The branch, tag, or SHA to checkout |\n| `fetch-depth` | `1` | Number of commits to fetch (`0` for full history/semver tags) |\n| `submodules` | `false` | Whether to checkout submodules (`true` or `recursive`) |"
   },
   {
     "id": "cmdk-palette-lite",
@@ -39,6 +117,19 @@
     "readme": "# Command Palette Zero\n\nDrop-in `<forge-cmdk>` **Web Component** with *sub-millisecond* fuzzy scoring, full keyboard navigation, and dark/light CSS custom properties.\n\n> Built on native [Custom Elements v1](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements) with **zero external dependencies** and `3.8kB` brotli size.\n\n## CDN Installation\n\nPaste the module script tag into your `<head>`:\n\n```html\n<script type=\"module\" src=\"https://cdn.jsdelivr.net/npm/@forgehub/cmdk-zero@1.8.0/dist/cmdk.min.js\"></script>\n```\n\n## Usage Example\n\n```javascript\nconst palette = document.querySelector('forge-cmdk');\n\npalette.setCommands([\n  {\n    id: 'copy-url',\n    title: 'Copy Current Page URL',\n    section: 'Actions',\n    shortcut: 'Mod+Shift+C',\n    handler: () => navigator.clipboard.writeText(location.href)\n  },\n  {\n    id: 'toggle-theme',\n    title: 'Toggle Dark / Light Appearance',\n    section: 'Preferences',\n    shortcut: 'Mod+J',\n    handler: () => document.documentElement.classList.toggle('dark')\n  }\n]);\n```\n\n## Keyboard Shortcuts\n\n| Shortcut | Context | Action |\n| --- | --- | --- |\n| `Cmd+K` / `Ctrl+K` | Global | Toggle command palette modal visibility |\n| `ArrowUp` / `ArrowDown` | Open Modal | Navigate filtered command items |\n| `Enter` | Open Modal | Execute highlighted command handler |\n| `Escape` | Open Modal | Dismiss palette and restore focus |"
   },
   {
+    "id": "gh-release-sentinel",
+    "name": "Release Sentinel",
+    "description": "Zero-config semantic versioning, conventional commit parser, and automated GitHub release notes generator with monorepo tag isolation.",
+    "author": "alexrivera",
+    "version": "2.4.1",
+    "stars": 1840,
+    "category": "Automation",
+    "tags": ["github-actions", "semver", "changelog", "ci-cd"],
+    "installCommand": "npx @forgehub/release-sentinel init --workflow",
+    "downloadUrl": "https://github.com/forgehub-registry/release-sentinel/releases/latest/download/release-sentinel.tar.gz",
+    "readme": "# Release Sentinel\n\nAutomated **semantic versioning** and *changelog generation* designed for zero-maintenance [GitHub Actions](https://docs.github.com/en/actions) pipelines.\n\n> **Note:** Release Sentinel requires `contents: write` permission in your workflow token to tag commits and publish release assets.\n\n## Quick Start\n\n1. Run the interactive initializer in your repository root.\n2. Commit the generated `.github/workflows/release.yml` workflow.\n3. Push any [Conventional Commit](https://www.conventionalcommits.org) to `main`.\n\n```bash\nnpx @forgehub/release-sentinel init --workflow\n```\n\n## CLI Flags & Options\n\n| Flag | Type | Default | Description |\n| --- | --- | --- | --- |\n| `--workflow` | `boolean` | `true` | Scaffolds the GitHub Actions YAML workflow |\n| `--dry-run` | `boolean` | `false` | Computes next SemVer bump without pushing tags |\n| `--changelog-file` | `string` | `CHANGELOG.md` | Output file path for generated release notes |"
+  },
+  {
     "id": "env-vault-sync",
     "name": "EnvVault CLI",
     "description": "Portable command-line utility that encrypts local .env files using AES-256-GCM so secrets can be safely committed to version control.",
@@ -49,7 +140,7 @@
     "tags": ["dotenv", "encryption", "secrets", "cli-tool"],
     "installCommand": "curl -fsSL https://get.forgehub.dev/env-vault | sh",
     "downloadUrl": "https://github.com/forgehub-registry/env-vault-cli/releases/latest/download/env-vault-linux-amd64.tar.gz",
-    "readme": "# EnvVault CLI\n\nCommit encrypted `.env.vault` snapshots **directly to Git** and decrypt them in *CI/CD* or local environments with a single master key.\n\n> **Security Guarantee:** Zero plaintext disk writes occur during `env-vault exec`—variables are decrypted strictly in process memory.\n\n## One-Line Install\n\n```bash\ncurl -fsSL https://get.forgehub.dev/env-vault | sh\n```\n\n## Core Workflow\n\n1. **Initialize Vault:** Generate a project encryption key and create `.env.vault`.\n2. **Lock Secrets:** Encrypt local `.env.production` changes before committing.\n3. **Execute Process:** Run your server with decrypted secrets injected into memory.\n\n```bash\n# 1. Generate a project encryption key and initialize .env.vault\nenv-vault init --env .env.production\n\n# 2. Encrypt local changes into the committed .env.vault file\nenv-vault lock --input .env.production --output .env.vault\n\n# 3. Execute any process with decrypted secrets injected in memory\nENV_VAULT_KEY=\"vlt_9f8a...\" env-vault exec -- node server.js\n```\n\n## Cryptographic Specifications\n\n- **Cipher Suite:** Authenticated `AES-256-GCM` with unique 96-bit nonces per lock operation.\n- **Key Derivation:** `HKDF-SHA256` per environment stage (`development`, `staging`, `production`)."
+    "readme": "# EnvVault CLI\n\nCommit encrypted `.env.vault` snapshots **directly to Git** and decrypt them in *CI/CD* or local environments with a single master key.\n\n> **Security Guarantee:** Zero plaintext disk writes occur during `env-vault exec`—variables are decrypted strictly in process memory.\n\n## One-Line Install\n\n```bash\ncurl -fsSL https://get.forgehub.dev/env-vault | sh\n```\n\n## Core Workflow\n\n1. **Initialize Vault:** Generate a project encryption key and create `.env.vault`.\n2. **Lock Secrets:** Encrypt local `.env.production` changes before committing.\n3. **Execute Process:** Run your server with decrypted secrets injected into memory.\n\n```bash\n# 1. Generate a project encryption key and initialize .env.vault\nenv-vault init --env .env.production\n\n# 2. Encrypt local changes into the committed .env.vault file\nenv-vault lock --input .env.production --output .env.vault\n\n# 3. Execute any process with decrypted secrets injected in memory\nENV_VAULT_KEY=\"vlt_9f8a...\" env-vault exec -- node server.js\n```"
   },
   {
     "id": "edge-rate-guard",
@@ -62,6 +153,6 @@
     "tags": ["rate-limit", "middleware", "cloudflare-workers", "token-bucket"],
     "installCommand": "npm install @forgehub/edge-rate-guard",
     "downloadUrl": "https://github.com/forgehub-registry/edge-rate-guard/releases/latest/download/edge-rate-guard-1.5.4.tgz",
-    "readme": "# Edge RateGuard\n\nStandards-based **HTTP rate limiting middleware** built on the [Web Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) `Request` and `Response` primitives with *zero Node.js-specific dependencies*.\n\n## Installation\n\n```bash\nnpm install @forgehub/edge-rate-guard\n```\n\n## Middleware Usage\n\n```javascript\nimport { createRateGuard } from '@forgehub/edge-rate-guard';\n\nconst limiter = createRateGuard({\n  windowMs: 60_000,\n  maxRequests: 120,\n  keyGenerator: (req) => req.headers.get('cf-connecting-ip') || 'anonymous',\n  standardHeaders: true\n});\n\nexport default {\n  async fetch(request) {\n    const verdict = await limiter.check(request);\n    if (!verdict.allowed) {\n      return verdict.toTooManyRequestsResponse();\n    }\n    return new Response(JSON.stringify({ ok: true }), {\n      headers: verdict.headers\n    });\n  }\n};\n```\n\n## Standard Response Headers\n\n| Header | Example Value | Description |\n| --- | --- | --- |\n| `RateLimit-Limit` | `120` | Maximum requests permitted in the sliding window |\n| `RateLimit-Remaining` | `84` | Remaining requests before throttling triggers |\n| `RateLimit-Reset` | `42` | Seconds until the current window resets |\n| `Retry-After` | `42` | Included on `HTTP 429` responses |"
+    "readme": "# Edge RateGuard\n\nStandards-based **HTTP rate limiting middleware** built on the [Web Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) `Request` and `Response` primitives with *zero Node.js-specific dependencies*.\n\n## Installation\n\n```bash\nnpm install @forgehub/edge-rate-guard\n```\n\n## Middleware Usage\n\n```javascript\nimport { createRateGuard } from '@forgehub/edge-rate-guard';\n\nconst limiter = createRateGuard({\n  windowMs: 60_000,\n  maxRequests: 120,\n  keyGenerator: (req) => req.headers.get('cf-connecting-ip') || 'anonymous',\n  standardHeaders: true\n});\n```\n\n## Standard Response Headers\n\n| Header | Example Value | Description |\n| --- | --- | --- |\n| `RateLimit-Limit` | `120` | Maximum requests permitted in the sliding window |\n| `RateLimit-Remaining` | `84` | Remaining requests before throttling triggers |\n| `RateLimit-Reset` | `42` | Seconds until the current window resets |\n| `Retry-After` | `42` | Included on `HTTP 429` responses |"
   }
 ]

@@ -829,7 +829,7 @@ async function loadPlugins() {
   if (grid) grid.classList.add('hidden');
 
   try {
-    const response = await fetch('./plugins.json', { cache: 'no-store' });
+    const response = await fetch(`./plugins.json?v=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status} while fetching ./plugins.json`);
     }
