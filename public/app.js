@@ -143,8 +143,64 @@ export function filterAndSortPlugins(plugins, currentState) {
   return sorted;
 }
 
-function renderMarkdownToHtml(markdown) {
-  const raw = String(markdown || '');
+function formatInlineMarkdown(text) {
+  const codeTokens = [];
+
+  const withPlaceholders = String(text ?? '').replace(/`([^`]+)`/g, (_match, code) => {
+    const idx = codeTokens.length;
+    codeTokens.push(
+      `<code class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px] text-indigo-600 dark:text-indigo-300">${escapeHtml(code)}</code>`
+    );
+    return `\x00CODE_${idx}\x00`;
+  });
+
+  let html = escapeHtml(withPlaceholders);
+
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label, rawUrl) => {
+    const url = String(rawUrl).trim();
+    const isSafe = /^(https?:\/\/|mailto:|#|\/)/i.test(url);
+    if (!isSafe) return label;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 dark:text-indigo-400 underline underline-offset-2 hover:text-indigo-500">${label}</a>`;
+  });
+
+  html = html.replace(
+    /\*\*\*([^*]+)\*\*\*/g,
+    '<strong class="font-semibold text-slate-900 dark:text-white"><em>$1</em></strong>'
+  );
+
+  html = html.replace(
+    /\*\*([^*]+)\*\*/g,
+    '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>'
+  );
+  html = html.replace(
+    /__([^_]+)__/g,
+    '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>'
+  );
+
+  html = html.replace(/\*([^*\n]+)\*/g, '<em class="italic">$1</em>');
+  html = html.replace(/(^|\s)_([^_\n]+)_(?=\s|$|[.,!?:;])/g, '$1<em class="italic">$2</em>');
+
+  html = html.replace(/~~([^~]+)~~/g, '<del class="line-through opacity-75">$1</del>');
+
+  html = html.replace(/\x00CODE_(\d+)\x00/g, (_m, idx) => codeTokens[Number(idx)] || '');
+
+  return html;
+}
+
+function parseTableRow(line) {
+  const trimmed = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+  return trimmed.split('|').map((cell) => cell.trim());
+}
+
+function isTableSeparator(line) {
+  const trimmed = line.trim();
+  if (!trimmed.includes('|') && !trimmed.includes('-')) return false;
+  const cells = parseTableRow(trimmed);
+  return cells.length > 0 && cells.every((c) => /^:?-{3,}:?$/.test(c));
+}
+
+export function renderMarkdownToHtml(markdown) {
+  const raw = String(markdown ?? '').replace(/\r\n/g, '\n');
   const segments = raw.split(/(```[\s\S]*?```)/g);
 
   return segments
@@ -183,35 +239,97 @@ function renderMarkdownToHtml(markdown) {
       return blocks
         .map((block) => {
           const trimmed = block.trim();
-          if (trimmed.startsWith('# ')) {
-            return `<h3 class="text-base font-bold text-slate-900 dark:text-white mt-2">${formatInlineMarkdown(trimmed.slice(2))}</h3>`;
-          }
-          if (trimmed.startsWith('## ')) {
-            return `<h4 class="text-sm font-semibold text-slate-900 dark:text-white mt-4 pt-2 border-t border-slate-200 dark:border-slate-800">${formatInlineMarkdown(trimmed.slice(3))}</h4>`;
-          }
           const lines = trimmed.split('\n');
-          if (lines.every((line) => line.trim().startsWith('- '))) {
+
+          if (/^(---|\*\*\*|___)$/.test(trimmed)) {
+            return '<hr class="my-4 border-slate-200 dark:border-slate-800" />';
+          }
+
+          const headingMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
+          if (headingMatch && lines.length === 1) {
+            const level = headingMatch[1].length;
+            const content = formatInlineMarkdown(headingMatch[2].trim());
+            if (level === 1) {
+              return `<h3 class="text-base font-bold tracking-tight text-slate-900 dark:text-white mt-2">${content}</h3>`;
+            }
+            if (level === 2) {
+              return `<h4 class="text-sm font-semibold text-slate-900 dark:text-white mt-5 pt-3 border-t border-slate-200 dark:border-slate-800">${content}</h4>`;
+            }
+            if (level === 3) {
+              return `<h5 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-3">${content}</h5>`;
+            }
+            return `<h6 class="text-xs font-medium text-slate-700 dark:text-slate-300 mt-2">${content}</h6>`;
+          }
+
+          if (lines.every((line) => line.trim().startsWith('>'))) {
+            const quoteBody = lines
+              .map((line) => formatInlineMarkdown(line.trim().replace(/^>\s?/, '')))
+              .join('<br />');
+            return `<blockquote class="my-3 p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${quoteBody}</blockquote>`;
+          }
+
+          if (
+            lines.length >= 2 &&
+            lines[0].includes('|') &&
+            isTableSeparator(lines[1])
+          ) {
+            const headers = parseTableRow(lines[0]);
+            const bodyRows = lines.slice(2).filter((l) => l.trim().includes('|'));
+            const theadHtml = headers
+              .map(
+                (h) =>
+                  `<th class="py-2 px-3 font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">${formatInlineMarkdown(h)}</th>`
+              )
+              .join('');
+            const tbodyHtml = bodyRows
+              .map((rowLine) => {
+                const cells = parseTableRow(rowLine);
+                const cellsHtml = headers
+                  .map(
+                    (_h, idx) =>
+                      `<td class="py-2 px-3 text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/60">${formatInlineMarkdown(cells[idx] ?? '')}</td>`
+                  )
+                  .join('');
+                return `<tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">${cellsHtml}</tr>`;
+              })
+              .join('');
+
+            return `
+              <div class="my-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs tabular-nums">
+                  <thead><tr>${theadHtml}</tr></thead>
+                  <tbody>${tbodyHtml}</tbody>
+                </table>
+              </div>
+            `;
+          }
+
+          if (lines.every((line) => /^[-*]\s+/.test(line.trim()))) {
             const items = lines
               .map(
                 (line) =>
-                  `<li class="ml-4 list-disc text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${formatInlineMarkdown(line.trim().slice(2))}</li>`
+                  `<li class="ml-4 list-disc text-xs text-slate-600 dark:text-slate-300 leading-relaxed marker:text-slate-400">${formatInlineMarkdown(line.trim().replace(/^[-*]\s+/, ''))}</li>`
               )
               .join('');
             return `<ul class="space-y-1.5 my-2">${items}</ul>`;
           }
-          return `<p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${formatInlineMarkdown(trimmed)}</p>`;
+
+          if (lines.every((line) => /^\d+\.\s+/.test(line.trim()))) {
+            const items = lines
+              .map(
+                (line) =>
+                  `<li class="ml-4 list-decimal text-xs text-slate-600 dark:text-slate-300 leading-relaxed marker:text-slate-400 marker:font-mono">${formatInlineMarkdown(line.trim().replace(/^\d+\.\s+/, ''))}</li>`
+              )
+              .join('');
+            return `<ol class="space-y-1.5 my-2">${items}</ol>`;
+          }
+
+          const paragraphContent = lines.map((l) => formatInlineMarkdown(l.trim())).join(' ');
+          return `<p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${paragraphContent}</p>`;
         })
         .join('');
     })
     .join('');
-}
-
-function formatInlineMarkdown(text) {
-  const escaped = escapeHtml(text);
-  return escaped.replace(
-    /`([^`]+)`/g,
-    '<code class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px] text-indigo-600 dark:text-indigo-300">$1</code>'
-  );
 }
 
 function renderCategoryFilters() {

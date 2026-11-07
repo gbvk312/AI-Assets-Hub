@@ -7,6 +7,7 @@ import {
   filterAndSortPlugins,
   extractCategories,
   buildContributorPluginJson,
+  renderMarkdownToHtml,
   type PluginItem,
 } from './pluginCore';
 
@@ -29,7 +30,6 @@ test('plugins.json contains 4 realistic plugins adhering strictly to required sc
 });
 
 test('filterAndSortPlugins filters by title, description, and tags in real-time', () => {
-  // Search by title
   const byTitle = filterAndSortPlugins(samplePlugins, {
     searchQuery: 'Sentinel',
     category: 'All',
@@ -39,7 +39,6 @@ test('filterAndSortPlugins filters by title, description, and tags in real-time'
   assert.equal(byTitle.length, 1);
   assert.equal(byTitle[0].id, 'gh-release-sentinel');
 
-  // Search by description keyword
   const byDesc = filterAndSortPlugins(samplePlugins, {
     searchQuery: 'AES-256-GCM',
     category: 'All',
@@ -49,7 +48,6 @@ test('filterAndSortPlugins filters by title, description, and tags in real-time'
   assert.equal(byDesc.length, 1);
   assert.equal(byDesc[0].id, 'env-vault-sync');
 
-  // Search by tag
   const byTag = filterAndSortPlugins(samplePlugins, {
     searchQuery: 'cloudflare-workers',
     category: 'All',
@@ -116,4 +114,44 @@ test('buildContributorPluginJson generates valid schema-compliant JSON', () => {
   assert.equal(parsed.version, '1.2.0');
   const check = validatePluginSchema(parsed);
   assert.equal(check.valid, true);
+});
+
+test('renderMarkdownToHtml parses headings, bold, italic, code, links, lists, blockquotes, and tables safely', () => {
+  const md = [
+    '# Main Title',
+    '',
+    'Paragraph with **bold text**, *italic text*, `inline <tag>`, and [Docs Link](https://example.com).',
+    '',
+    '> **Note:** Important blockquote callout.',
+    '',
+    '## Ordered Steps',
+    '',
+    '1. First step',
+    '2. Second step',
+    '',
+    '- Bullet A',
+    '- Bullet B',
+    '',
+    '| Flag | Default |',
+    '| --- | --- |',
+    '| `--watch` | `true` |',
+    '',
+    '```bash',
+    'npx test-runner --watch',
+    '```',
+  ].join('\n');
+
+  const html = renderMarkdownToHtml(md);
+
+  assert.equal(html.includes('<h3'), true, 'Renders # as h3');
+  assert.equal(html.includes('<h4'), true, 'Renders ## as h4');
+  assert.equal(html.includes('<strong'), true, 'Renders **bold**');
+  assert.equal(html.includes('<em'), true, 'Renders *italic*');
+  assert.equal(html.includes('inline &lt;tag&gt;'), true, 'Escapes HTML inside inline code');
+  assert.equal(html.includes('href="https://example.com"'), true, 'Renders safe markdown link');
+  assert.equal(html.includes('<blockquote'), true, 'Renders blockquote');
+  assert.equal(html.includes('<ol'), true, 'Renders ordered list');
+  assert.equal(html.includes('<ul'), true, 'Renders unordered list');
+  assert.equal(html.includes('<table'), true, 'Renders markdown table');
+  assert.equal(html.includes('npx test-runner --watch'), true, 'Renders fenced code block');
 });
