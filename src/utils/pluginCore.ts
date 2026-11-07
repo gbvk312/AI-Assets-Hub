@@ -43,6 +43,36 @@ export function isMostPopularPlugin(
   return Number.isFinite(num) && num > threshold;
 }
 
+export function buildPluginDeepLinkUrl(baseUrl: string, pluginId: string): string {
+  const cleanId = String(pluginId ?? '').trim();
+  try {
+    const url = new URL(baseUrl || 'http://localhost:3000/');
+    url.searchParams.set('plugin', cleanId);
+    url.hash = `plugin-${encodeURIComponent(cleanId)}`;
+    return url.toString();
+  } catch {
+    const base = String(baseUrl || '').split('#')[0].split('?')[0];
+    return `${base}?plugin=${encodeURIComponent(cleanId)}#plugin-${encodeURIComponent(cleanId)}`;
+  }
+}
+
+export function extractDeepLinkPluginId(urlOrLocation: string): string | null {
+  if (!urlOrLocation) return null;
+  try {
+    const url = new URL(urlOrLocation, 'http://localhost:3000/');
+    const fromQuery = url.searchParams.get('plugin')?.trim();
+    if (fromQuery) return fromQuery;
+    const rawHash = url.hash.replace(/^#/, '').trim();
+    if (rawHash.startsWith('plugin-')) {
+      const fromHash = decodeURIComponent(rawHash.slice('plugin-'.length)).trim();
+      if (fromHash) return fromHash;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function escapeHtml(str: unknown): string {
   return String(str ?? '')
     .replace(/&/g, '&amp;')

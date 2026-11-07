@@ -9,6 +9,8 @@ import {
   buildContributorPluginJson,
   renderMarkdownToHtml,
   isMostPopularPlugin,
+  buildPluginDeepLinkUrl,
+  extractDeepLinkPluginId,
   POPULAR_STARS_THRESHOLD,
   type PluginItem,
 } from './pluginCore';
@@ -210,4 +212,19 @@ test('renderMarkdownToHtml parses headings, bold, italic, code, links, lists, bl
   assert.equal(html.includes('<ul'), true, 'Renders unordered list');
   assert.equal(html.includes('<table'), true, 'Renders markdown table');
   assert.equal(html.includes('npx test-runner --watch'), true, 'Renders fenced code block');
+});
+
+test('buildPluginDeepLinkUrl and extractDeepLinkPluginId construct and parse direct plugin deep-links accurately', () => {
+  const link = buildPluginDeepLinkUrl('https://forgehub.github.io/registry/', 'gh-find-skills');
+  assert.equal(
+    link,
+    'https://forgehub.github.io/registry/?plugin=gh-find-skills#plugin-gh-find-skills'
+  );
+  assert.equal(extractDeepLinkPluginId(link), 'gh-find-skills');
+
+  const hashOnly = 'http://localhost:3000/#plugin-cmdk-palette-lite';
+  assert.equal(extractDeepLinkPluginId(hashOnly), 'cmdk-palette-lite');
+
+  const noPlugin = 'http://localhost:3000/#directory';
+  assert.equal(extractDeepLinkPluginId(noPlugin), null);
 });

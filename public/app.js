@@ -26,6 +26,42 @@ export function isMostPopularPlugin(stars, threshold = POPULAR_STARS_THRESHOLD) 
 }
 
 /**
+ * Builds a direct, shareable deep-link URL for a specific plugin ID.
+ */
+export function buildPluginDeepLinkUrl(baseUrl, pluginId) {
+  const cleanId = String(pluginId ?? '').trim();
+  try {
+    const url = new URL(baseUrl || 'http://localhost:3000/');
+    url.searchParams.set('plugin', cleanId);
+    url.hash = `plugin-${encodeURIComponent(cleanId)}`;
+    return url.toString();
+  } catch {
+    const base = String(baseUrl || '').split('#')[0].split('?')[0];
+    return `${base}?plugin=${encodeURIComponent(cleanId)}#plugin-${encodeURIComponent(cleanId)}`;
+  }
+}
+
+/**
+ * Extracts a deep-linked plugin ID from a full URL, query string (?plugin=...), or hash (#plugin-...).
+ */
+export function extractDeepLinkPluginId(urlOrLocation) {
+  if (!urlOrLocation) return null;
+  try {
+    const url = new URL(urlOrLocation, 'http://localhost:3000/');
+    const fromQuery = url.searchParams.get('plugin')?.trim();
+    if (fromQuery) return fromQuery;
+    const rawHash = url.hash.replace(/^#/, '').trim();
+    if (rawHash.startsWith('plugin-')) {
+      const fromHash = decodeURIComponent(rawHash.slice('plugin-'.length)).trim();
+      if (fromHash) return fromHash;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Inline Lucide SVG definitions for zero-latency rendering & offline resilience,
  * paired with window.lucide.createIcons() when CDN script is active.
  */
@@ -38,6 +74,8 @@ const ICONS = {
     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   bookOpen:
     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+  share:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>',
   download:
     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
   sun:
@@ -495,6 +533,7 @@ function renderPluginGrid() {
 
       return `
         <article
+          id="plugin-${escapeHtml(plugin.id)}"
           data-plugin-card="${escapeHtml(plugin.id)}"
           class="flex flex-col justify-between p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors space-y-5"
         >
@@ -546,7 +585,7 @@ function renderPluginGrid() {
 
             <!-- Card Action Buttons -->
             <div class="flex flex-wrap items-center justify-between gap-3">
-              <div class="flex items-center gap-2.5">
+              <div class="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   data-action="copy-install"
@@ -567,6 +606,17 @@ function renderPluginGrid() {
                 >
                   <span class="pointer-events-none" aria-hidden="true">${ICONS.bookOpen}</span>
                   <span>View Source / Docs</span>
+                </button>
+
+                <button
+                  type="button"
+                  data-action="share-plugin"
+                  data-plugin-id="${escapeHtml(plugin.id)}"
+                  aria-label="Share deep-link URL for ${escapeHtml(plugin.name)}"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  <span class="pointer-events-none" aria-hidden="true">${ICONS.share}</span>
+                  <span data-share-label>Share</span>
                 </button>
               </div>
 
@@ -793,6 +843,17 @@ async function loadPlugins() {
 
     renderCategoryFilters();
     renderPluginGrid();
+
+    if (typeof window !== 'undefined' && window.location) {
+      const deepLinkedId = extractDeepLinkPluginId(window.location.href);
+      if (deepLinkedId && state.plugins.some((p) => p.id === deepLinkedId)) {
+        const cardEl = document.getElementById(`plugin-${deepLinkedId}`);
+        if (cardEl && typeof cardEl.scrollIntoView === 'function') {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        openDocsModal(deepLinkedId);
+      }
+    }
   } catch (err) {
     if (loadingState) loadingState.classList.add('hidden');
     if (errorState) errorState.classList.remove('hidden');
@@ -888,7 +949,7 @@ function initApp() {
     loadPlugins();
   });
 
-  // Plugin Grid Delegation (Copy Install, View Source / Docs, Tag Click)
+  // Plugin Grid Delegation (Copy Install, View Source / Docs, Share Deep-Link, Tag Click)
   const grid = document.getElementById('plugin-grid');
   grid?.addEventListener('click', async (e) => {
     const tagBtn = e.target.closest('button[data-tag]');
@@ -920,6 +981,23 @@ function initApp() {
       showToast(`Copied ${plugin.name} install command`, plugin.installCommand);
     } else if (action === 'view-docs') {
       openDocsModal(plugin.id);
+    } else if (action === 'share-plugin') {
+      const deepLinkUrl = buildPluginDeepLinkUrl(window.location.href, plugin.id);
+      await copyToClipboard(deepLinkUrl);
+      try {
+        window.history.replaceState(null, '', deepLinkUrl);
+      } catch {
+        // Ignore history state restrictions in sandboxed environments
+      }
+      const shareLabelSpan = actionBtn.querySelector('[data-share-label]');
+      if (shareLabelSpan) {
+        const originalText = shareLabelSpan.textContent;
+        shareLabelSpan.textContent = 'Link Copied!';
+        setTimeout(() => {
+          shareLabelSpan.textContent = originalText;
+        }, 1800);
+      }
+      showToast(`Copied ${plugin.name} deep-link URL`, deepLinkUrl);
     }
   });
 
