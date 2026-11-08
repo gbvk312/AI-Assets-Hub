@@ -789,16 +789,376 @@ export const TOP_50_PLUGINS = [
   },
 ];
 
+export const MAX_COMPARE_PLUGINS = 3;
+export const DEFAULT_PAGE_SIZE = 24;
+
+const AI_AUTOMATION_SEEDS = [
+  { slug: 'claude-code-agent', title: 'Claude Code CLI', author: 'anthropics', baseStars: 44200, baseVersion: '2.4.0', tags: ['claude', 'cli-agent', 'ai', 'autonomous', 'coding'], cmdPrefix: 'npm install -g @anthropic-ai/claude-code', repoOrg: 'anthropics/claude-code', summary: 'Agentic terminal coding assistant that edits multi-file repositories, runs tests, and resolves Git conflicts.' },
+  { slug: 'cline-autonomous-dev', title: 'Cline AI Agent', author: 'cline', baseStars: 38900, baseVersion: '3.8.2', tags: ['cline', 'vscode-agent', 'mcp', 'autonomous', 'ai'], cmdPrefix: 'code --install-extension saoudrizwan.claude-dev', repoOrg: 'cline/cline', summary: 'Autonomous IDE coding agent capable of executing shell commands, browser inspection, and MCP tool calls.' },
+  { slug: 'roo-code-orchestrator', title: 'Roo Code', author: 'rooveterinaryinc', baseStars: 26400, baseVersion: '3.11.0', tags: ['roo-code', 'multi-agent', 'custom-modes', 'ai-coding', 'mcp'], cmdPrefix: 'code --install-extension rooveterinaryinc.roo-cline', repoOrg: 'RooVetGit/Roo-Code', summary: 'Customizable multi-role AI agent suite with Architect, Code, Ask, and Debug modes inside VS Code.' },
+  { slug: 'aider-pair-programmer', title: 'Aider AI Pair Programmer', author: 'paul-gauthier', baseStars: 33700, baseVersion: '0.78.0', tags: ['aider', 'terminal-ai', 'git-commits', 'repo-map', 'llm'], cmdPrefix: 'pip install aider-chat && aider --model sonnet', repoOrg: 'Aider-AI/aider', summary: 'Terminal-based AI pair programmer that builds a full AST repository map and auto-commits semantic changes.' },
+  { slug: 'continue-dev-autopilot', title: 'Continue.dev', author: 'continuedev', baseStars: 27800, baseVersion: '1.1.14', tags: ['continue', 'open-source-ai', 'autocomplete', 'vscode', 'jetbrains'], cmdPrefix: 'code --install-extension Continue.continue', repoOrg: 'continuedev/continue', summary: 'Open-source AI code assistant connecting any local or cloud LLM for tab autocomplete and codebase chat.' },
+  { slug: 'model-context-protocol-sdk', title: 'MCP Server SDK', author: 'modelcontextprotocol', baseStars: 35600, baseVersion: '1.9.0', tags: ['mcp', 'context-protocol', 'ai-tools', 'json-rpc', 'agents'], cmdPrefix: 'npx @modelcontextprotocol/inspector', repoOrg: 'modelcontextprotocol/servers', summary: 'Standardized Model Context Protocol server suite connecting LLMs to GitHub, Postgres, Slack, and local files.' },
+  { slug: 'firecrawl-mcp-scraper', title: 'Firecrawl Web Agent', author: 'mendableai', baseStars: 29100, baseVersion: '1.6.1', tags: ['firecrawl', 'web-scraping', 'llm-markdown', 'mcp', 'crawler'], cmdPrefix: 'npx -y firecrawl-mcp', repoOrg: 'mendableai/firecrawl', summary: 'Turns entire documentation websites into clean LLM-ready Markdown and structured data for coding agents.' },
+  { slug: 'browser-use-agent', title: 'Browser-Use Agent', author: 'browser-use', baseStars: 36800, baseVersion: '0.4.3', tags: ['browser-use', 'web-automation', 'playwright-ai', 'agents', 'vision'], cmdPrefix: 'pip install browser-use && playwright install', repoOrg: 'browser-use/browser-use', summary: 'Enables AI agents to control real headless browsers via DOM trees and visual bounding boxes.' },
+  { slug: 'langchain-langgraph-studio', title: 'LangGraph Studio', author: 'langchain-ai', baseStars: 41200, baseVersion: '0.3.18', tags: ['langgraph', 'stateful-agents', 'workflows', 'orchestration', 'ai'], cmdPrefix: 'pip install -U langgraph-cli && langgraph dev', repoOrg: 'langchain-ai/langgraph', summary: 'Visual agent IDE and graph runtime for building stateful, multi-actor LLM applications with human-in-the-loop.' },
+  { slug: 'openhands-devin-runtime', title: 'OpenHands (OpenDevin)', author: 'All-Hands-AI', baseStars: 46500, baseVersion: '0.29.0', tags: ['openhands', 'autonomous-engineer', 'sandbox', 'docker', 'ai-agent'], cmdPrefix: 'docker pull docker.all-hands.dev/all-hands-ai/openhands:0.29', repoOrg: 'All-Hands-AI/OpenHands', summary: 'Open-source autonomous AI software engineer capable of executing complex engineering tasks in Docker sandboxes.' },
+  { slug: 'supermaven-fast-complete', title: 'Supermaven Copilot', author: 'supermaven', baseStars: 16400, baseVersion: '1.12.0', tags: ['supermaven', '1m-context', 'low-latency', 'autocomplete', 'ai'], cmdPrefix: 'code --install-extension supermaven.supermaven', repoOrg: 'supermaven-inc/supermaven-nvim', summary: 'Ultra-low-latency AI code completion engine featuring a 1-million-token repository context window.' },
+  { slug: 'dify-workflow-engine', title: 'Dify LLM Ops', author: 'langgenius', baseStars: 58400, baseVersion: '1.1.0', tags: ['dify', 'llmops', 'rag-pipeline', 'agent-workflows', 'ai'], cmdPrefix: 'docker compose -f docker/docker-compose.yaml up -d', repoOrg: 'langgenius/dify', summary: 'Open-source LLM app development platform combining agentic workflows, RAG pipelines, and model observability.' },
+  { slug: 'ollama-local-runner', title: 'Ollama Local Models', author: 'ollama', baseStars: 94200, baseVersion: '0.6.2', tags: ['ollama', 'local-llm', 'llama3', 'deepseek', 'inference'], cmdPrefix: 'curl -fsSL https://ollama.com/install.sh | sh', repoOrg: 'ollama/ollama', summary: 'Run DeepSeek-R1, Qwen-Coder, and Llama 3 locally with a single CLI command and OpenAI-compatible API.' },
+  { slug: 'litellm-gateway', title: 'LiteLLM Proxy Gateway', author: 'BerriAI', baseStars: 21500, baseVersion: '1.63.0', tags: ['litellm', 'ai-gateway', 'load-balancing', 'cost-tracking', 'openai-proxy'], cmdPrefix: 'pip install "litellm[proxy]" && litellm --model gpt-4o', repoOrg: 'BerriAI/litellm', summary: 'Unified AI gateway to call 100+ LLM APIs in OpenAI format with budget limits, fallbacks, and latency routing.' },
+  { slug: 'promptfoo-eval-suite', title: 'Promptfoo LLM Eval', author: 'promptfoo', baseStars: 14800, baseVersion: '0.106.0', tags: ['promptfoo', 'llm-evals', 'red-teaming', 'ci-testing', 'ai-safety'], cmdPrefix: 'npx promptfoo@latest init && npx promptfoo eval', repoOrg: 'promptfoo/promptfoo', summary: 'Test and red-team LLM prompts, agents, and RAG outputs with deterministic CI/CD assertions and matrix views.' },
+  { slug: 'vllm-inference-engine', title: 'vLLM High-Throughput Server', author: 'vllm-project', baseStars: 41900, baseVersion: '0.7.3', tags: ['vllm', 'paged-attention', 'gpu-serving', 'llm-inference', 'cuda'], cmdPrefix: 'pip install vllm && vllm serve Qwen/Qwen2.5-Coder-32B-Instruct', repoOrg: 'vllm-project/vllm', summary: 'High-throughput and memory-efficient LLM inference and serving engine powered by PagedAttention.' },
+  { slug: 'crewai-multi-agent', title: 'CrewAI Orchestrator', author: 'crewAIInc', baseStars: 28700, baseVersion: '0.102.0', tags: ['crewai', 'multi-agent', 'role-playing', 'task-automation', 'python'], cmdPrefix: 'pip install crewai crewai-tools && crewai create crew', repoOrg: 'crewAIInc/crewAI', summary: 'Framework for orchestrating role-playing, autonomous AI agents that collaborate on complex research and code tasks.' },
+  { slug: 'Vercel-ai-sdk', title: 'Vercel AI SDK Core', author: 'vercel', baseStars: 19800, baseVersion: '4.2.0', tags: ['ai-sdk', 'streaming-ui', 'tool-calling', 'typescript', 'nextjs'], cmdPrefix: 'npm install ai @ai-sdk/openai @ai-sdk/anthropic', repoOrg: 'vercel/ai', summary: 'TypeScript toolkit for building streaming AI interfaces, structured object generation, and multi-step tool calls.' },
+  { slug: 'opencommit-ai-git', title: 'OpenCommit CLI', author: 'di-sukharev', baseStars: 12400, baseVersion: '3.2.8', tags: ['opencommit', 'git-hooks', 'conventional-commits', 'cli', 'ai'], cmdPrefix: 'npm install -g opencommit && oco', repoOrg: 'di-sukharev/opencommit', summary: 'Auto-generates semantic Conventional Commits from staged git diffs in 1 second using local or cloud LLMs.' },
+];
+
+const DEVELOPERS_SEEDS = [
+  { slug: 'biome-toolchain', title: 'Biome Formatter & Linter', author: 'biomejs', baseStars: 22900, baseVersion: '1.9.4', tags: ['biome', 'rust-linter', 'formatter', 'typescript', 'fast-ast'], cmdPrefix: 'npm install --save-dev --save-exact @biomejs/biome', repoOrg: 'biomejs/biome', summary: 'Rust-powered toolchain for web projects that formats and lints JavaScript, TypeScript, JSX, and JSON in milliseconds.' },
+  { slug: 'turborepo-monorepo', title: 'Turborepo Build System', author: 'vercel', baseStars: 27400, baseVersion: '2.4.2', tags: ['turborepo', 'monorepo', 'remote-cache', 'build-system', 'rust'], cmdPrefix: 'npx create-turbo@latest', repoOrg: 'vercel/turborepo', summary: 'High-performance incremental bundler and build system for JavaScript and TypeScript monorepos with remote caching.' },
+  { slug: 'nx-smart-monorepo', title: 'Nx Workspace Console', author: 'nrwl', baseStars: 25100, baseVersion: '20.5.0', tags: ['nx', 'monorepo', 'task-graph', 'distributed-ci', 'devtools'], cmdPrefix: 'npx create-nx-workspace@latest', repoOrg: 'nrwl/nx', summary: 'Smart monorepo build platform with dependency graph visualization, affected task execution, and CI distribution.' },
+  { slug: 'vite-nextgen-bundler', title: 'Vite Frontend Tooling', author: 'vitejs', baseStars: 71200, baseVersion: '6.2.0', tags: ['vite', 'hmr', 'rollup', 'esbuild', 'dev-server'], cmdPrefix: 'npm create vite@latest', repoOrg: 'vitejs/vite', summary: 'Next-generation frontend build tool providing instant server start and lightning-fast Hot Module Replacement.' },
+  { slug: 'bun-all-in-one-runtime', title: 'Bun JavaScript Runtime', author: 'oven-sh', baseStars: 76500, baseVersion: '1.2.4', tags: ['bun', 'javascript-runtime', 'bundler', 'package-manager', 'zig'], cmdPrefix: 'curl -fsSL https://bun.sh/install | bash', repoOrg: 'oven-sh/bun', summary: 'All-in-one JavaScript and TypeScript runtime, package manager, test runner, and bundler built from scratch in Zig.' },
+  { slug: 'pnpm-fast-pkg', title: 'pnpm Disk-Efficient Manager', author: 'pnpm', baseStars: 31400, baseVersion: '10.5.0', tags: ['pnpm', 'package-manager', 'monorepo-workspaces', 'symlinks', 'nodejs'], cmdPrefix: 'npm install -g pnpm@latest-10', repoOrg: 'pnpm/pnpm', summary: 'Fast, disk space efficient package manager using a content-addressable store and strict node_modules isolation.' },
+  { slug: 'drizzle-orm-kit', title: 'Drizzle ORM & Studio', author: 'drizzle-team', baseStars: 26900, baseVersion: '0.39.3', tags: ['drizzle', 'typescript-orm', 'sql', 'postgres', 'migrations'], cmdPrefix: 'npm i drizzle-orm && npm i -D drizzle-kit', repoOrg: 'drizzle-team/drizzle-orm', summary: 'Headless TypeScript ORM with zero dependencies, SQL-like relational queries, and instant schema migration generation.' },
+  { slug: 'prisma-client-studio', title: 'Prisma ORM & Data Platform', author: 'prisma', baseStars: 41600, baseVersion: '6.4.1', tags: ['prisma', 'orm', 'database-schema', 'type-safe', 'postgresql'], cmdPrefix: 'npx prisma init && npx prisma studio', repoOrg: 'prisma/prisma', summary: 'Next-generation Node.js and TypeScript ORM with declarative data modeling, visual database browser, and type safety.' },
+  { slug: 'zod-schema-validator', title: 'Zod TypeScript Validator', author: 'colinhacks', baseStars: 36800, baseVersion: '3.24.2', tags: ['zod', 'schema-validation', 'static-inference', 'typescript', 'forms'], cmdPrefix: 'npm install zod', repoOrg: 'colinhacks/zod', summary: 'TypeScript-first schema declaration and validation library with static type inference and zero external dependencies.' },
+  { slug: 'tanstack-query-devtools', title: 'TanStack Query Devtools', author: 'TanStack', baseStars: 44100, baseVersion: '5.67.0', tags: ['tanstack-query', 'async-state', 'caching', 'swr', 'devtools'], cmdPrefix: 'npm i @tanstack/react-query @tanstack/react-query-devtools', repoOrg: 'TanStack/query', summary: 'Powerful asynchronous state management, server-state caching, and dedicated floating cache inspector for web apps.' },
+  { slug: 'trpc-end-to-end-rpc', title: 'tRPC Type-Safe APIs', author: 'trpc', baseStars: 36200, baseVersion: '11.0.0', tags: ['trpc', 'rpc', 'fullstack-typescript', 'api', 'react-query'], cmdPrefix: 'npm install @trpc/server @trpc/client @trpc/react-query', repoOrg: 'trpc/trpc', summary: 'Move fast and break nothing with end-to-end typesafe APIs without code generation or runtime bloat.' },
+  { slug: 'hono-ultrafast-edge', title: 'Hono Web Framework', author: 'honojs', baseStars: 23800, baseVersion: '4.7.2', tags: ['hono', 'cloudflare-workers', 'edge-api', 'ultrafast', 'typescript'], cmdPrefix: 'npm create hono@latest', repoOrg: 'honojs/hono', summary: 'Ultrafast web framework built on Web Standards for Cloudflare Workers, Deno, Bun, and Node.js with RPC client support.' },
+  { slug: 'error-lens-diagnostics', title: 'Error Lens Inline Diagnostics', author: 'usernamehw', baseStars: 14900, baseVersion: '3.22.0', tags: ['error-lens', 'vscode-extension', 'inline-diagnostics', 'linter', 'ide'], cmdPrefix: 'code --install-extension usernamehw.errorlens', repoOrg: 'usernamehw/vscode-error-lens', summary: 'Supercharges language diagnostic highlighting by rendering errors, warnings, and hints directly inline at the end of lines.' },
+  { slug: 'lazygit-terminal-ui', title: 'Lazygit Terminal UI', author: 'jesseduffield', baseStars: 57900, baseVersion: '0.47.0', tags: ['lazygit', 'tui', 'interactive-rebase', 'git-client', 'terminal'], cmdPrefix: 'brew install lazygit && lazygit', repoOrg: 'jesseduffield/lazygit', summary: 'Simple terminal UI for git commands making interactive rebasing, cherry-picking, and partial staging effortless.' },
+  { slug: 'gh-cli-official', title: 'GitHub CLI (gh)', author: 'cli', baseStars: 38600, baseVersion: '2.67.0', tags: ['github-cli', 'pull-requests', 'actions-runner', 'terminal', 'gh'], cmdPrefix: 'brew install gh && gh auth login', repoOrg: 'cli/cli', summary: 'Official GitHub command-line tool bringing pull requests, issues, Actions workflow runs, and releases to your terminal.' },
+  { slug: 'husky-git-hooks', title: 'Husky Pre-Commit Hooks', author: 'typicode', baseStars: 33400, baseVersion: '9.1.7', tags: ['husky', 'git-hooks', 'pre-commit', 'lint-staged', 'dx'], cmdPrefix: 'npm install --save-dev husky && npx husky init', repoOrg: 'typicode/husky', summary: 'Modern native Git hooks made easy for linting commit messages, running tests, and formatting code before push.' },
+  { slug: 'changesets-versioning', title: 'Changesets Release Manager', author: 'changesets', baseStars: 9900, baseVersion: '2.28.1', tags: ['changesets', 'semver', 'changelogs', 'monorepo-release', 'npm'], cmdPrefix: 'npx @changesets/cli init && npx changeset', repoOrg: 'changesets/changesets', summary: 'Manage versioning and changelogs with a focus on multi-package monorepos and automated GitHub release PRs.' },
+  { slug: 'oxc-oxidizer-compiler', title: 'Oxc JavaScript Compiler', author: 'oxc-project', baseStars: 14700, baseVersion: '0.54.0', tags: ['oxc', 'oxlint', 'rust-parser', 'ast', 'javascript-compiler'], cmdPrefix: 'npx oxlint@latest', repoOrg: 'oxc-project/oxc', summary: 'Collection of high-performance JavaScript tools written in Rust including oxlint, parser, resolver, and transformer.' },
+  { slug: 'zed-editor-collab', title: 'Zed Multiplayer Extensions', author: 'zed-industries', baseStars: 55800, baseVersion: '0.175.0', tags: ['zed', 'gpu-editor', 'rust', 'multiplayer-coding', 'lsp'], cmdPrefix: 'curl -f https://zed.dev/install.sh | sh', repoOrg: 'zed-industries/zed', summary: 'High-performance, multiplayer code editor from the creators of Atom and Tree-sitter with native AI and LSP extensions.' },
+];
+
+const TESTERS_QA_SEEDS = [
+  { slug: 'vitest-unit-runner', title: 'Vitest Blazing Unit Runner', author: 'vitest-dev', baseStars: 14200, baseVersion: '3.0.7', tags: ['vitest', 'unit-testing', 'vite', 'Snapshot-testing', 'coverage'], cmdPrefix: 'npm install -D vitest @vitest/ui && npx vitest --ui', repoOrg: 'vitest-dev/vitest', summary: 'Next-generation testing framework powered by Vite with instant watch mode, browser mode, and Jest-compatible APIs.' },
+  { slug: 'k6-load-testing', title: 'Grafana k6 Load Tester', author: 'grafana', baseStars: 26800, baseVersion: '0.57.0', tags: ['k6', 'load-testing', 'stress-test', 'performance-qa', 'grafana'], cmdPrefix: 'brew install k6 && k6 run script.js', repoOrg: 'grafana/k6', summary: 'Modern load testing tool built in Go and scripted in JavaScript for engineering teams testing API reliability at scale.' },
+  { slug: 'trivy-vulnerability-scanner', title: 'Aqua Trivy Scanner', author: 'aquasecurity', baseStars: 25600, baseVersion: '0.59.1', tags: ['trivy', 'container-security', 'sbom', 'iac-scanning', 'devsecops'], cmdPrefix: 'brew install trivy && trivy fs .', repoOrg: 'aquasecurity/trivy', summary: 'Comprehensive and versatile security scanner for containers, Kubernetes, code repositories, and SBOM compliance.' },
+  { slug: 'semgrep-sast-engine', title: 'Semgrep Code Security', author: 'semgrep', baseStars: 11400, baseVersion: '1.110.0', tags: ['semgrep', 'sast', 'custom-rules', 'security-scanning', 'ci-gate'], cmdPrefix: 'pip install semgrep && semgrep scan --config auto', repoOrg: 'semgrep/semgrep', summary: 'Lightweight static analysis engine for finding bug variants and enforcing secure coding guardrails across 30+ languages.' },
+  { slug: 'msw-mock-service-worker', title: 'MSW (Mock Service Worker)', author: 'mswjs', baseStars: 16300, baseVersion: '2.7.3', tags: ['msw', 'api-mocking', 'service-worker', 'rest', 'graphql'], cmdPrefix: 'npm install msw --save-dev && npx msw init public/', repoOrg: 'mswjs/msw', summary: 'Seamless REST and GraphQL API mocking library for browser and Node.js that intercepts requests at the network level.' },
+  { slug: 'testing-library-dom', title: 'React Testing Library', author: 'testing-library', baseStars: 19200, baseVersion: '16.2.0', tags: ['testing-library', 'a11y-queries', 'dom-testing', 'react', 'user-event'], cmdPrefix: 'npm install --save-dev @testing-library/react @testing-library/user-event', repoOrg: 'testing-library/react-testing-library', summary: 'Simple and complete DOM testing utilities that encourage good accessibility practices by querying elements the way users do.' },
+  { slug: 'owasp-zap-scanner', title: 'OWASP ZAP DAST Action', author: 'zaproxy', baseStars: 13200, baseVersion: '2.16.0', tags: ['owasp-zap', 'dast', 'penetration-testing', 'web-security', 'qa'], cmdPrefix: 'docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://example.com', repoOrg: 'zaproxy/zaproxy', summary: 'Dynamic Application Security Testing (DAST) web scanner that probes running web apps for OWASP Top 10 vulnerabilities.' },
+  { slug: 'gitleaks-secret-scanner', title: 'Gitleaks Secret Detector', author: 'gitleaks', baseStars: 19100, baseVersion: '8.24.0', tags: ['gitleaks', 'secrets-scanner', 'git-history', 'pre-commit', 'security'], cmdPrefix: 'brew install gitleaks && gitleaks detect --source . -v', repoOrg: 'gitleaks/gitleaks', summary: 'Fast SAST tool for detecting and preventing hardcoded secrets like passwords, API keys, and tokens in git repos.' },
+  { slug: 'pact-contract-testing', title: 'Pact Contract Testing', author: 'pact-foundation', baseStars: 10800, baseVersion: '14.0.0', tags: ['pact', 'contract-testing', 'microservices', 'consumer-driven', 'api-qa'], cmdPrefix: 'npm install --save-dev @pact-foundation/pact', repoOrg: 'pact-foundation/pact-js', summary: 'De-facto consumer-driven contract testing tool for verifying HTTP and message integrations without slow E2E environments.' },
+  { slug: 'testcontainers-docker', title: 'Testcontainers Runtime', author: 'testcontainers', baseStars: 9500, baseVersion: '10.18.0', tags: ['testcontainers', 'docker-testing', 'integration-tests', 'postgres', 'redis'], cmdPrefix: 'npm install @testcontainers/postgresql --save-dev', repoOrg: 'testcontainers/testcontainers-node', summary: 'Spins up lightweight, throwaway Docker instances of real databases, message brokers, and cloud services for integration tests.' },
+  { slug: 'stryker-mutation-testing', title: 'Stryker Mutator', author: 'stryker-mutator', baseStars: 6900, baseVersion: '8.6.0', tags: ['stryker', 'mutation-testing', 'test-quality', 'coverage-audit', 'qa'], cmdPrefix: 'npm init stryker@latest && npx stryker run', repoOrg: 'stryker-mutator/stryker-js', summary: 'Tests your tests by injecting deliberate semantic bugs (mutants) into production code to verify your suite catches them.' },
+  { slug: 'schemathesis-api-fuzzer', title: 'Schemathesis OpenAPI Fuzzer', author: 'schemathesis', baseStars: 5800, baseVersion: '3.39.0', tags: ['schemathesis', 'property-based-testing', 'openapi', 'graphql-fuzzing', 'qa'], cmdPrefix: 'pip install schemathesis && st run https://example.com/openapi.json', repoOrg: 'schemathesis/schemathesis', summary: 'Property-based API testing tool that generates thousands of edge-case requests automatically from OpenAPI or GraphQL schemas.' },
+  { slug: 'maestro-mobile-ui-qa', title: 'Maestro Mobile E2E Flows', author: 'mobile-dev-inc', baseStars: 7400, baseVersion: '1.39.2', tags: ['maestro', 'mobile-e2e', 'ios-testing', 'android-qa', 'yaml-flows'], cmdPrefix: 'curl -Ls "https://get.maestro.mobile.dev" | bash', repoOrg: 'mobile-dev-inc/Maestro', summary: 'Declarative YAML-based mobile and web UI testing framework resilient to flaky animations and dynamic view layouts.' },
+  { slug: 'artillery-cloud-load', title: 'Artillery Cloud Load QA', author: 'artilleryio', baseStars: 8400, baseVersion: '2.0.21', tags: ['artillery', 'load-testing', 'playwright-load', 'sre', 'performance'], cmdPrefix: 'npm install -g artillery@latest && artillery quick --count 50 -n 20 https://example.com', repoOrg: 'artilleryio/artillery', summary: 'Cloud-scale load testing and synthetic monitoring platform that reuses real Playwright E2E scripts for traffic generation.' },
+  { slug: 'hurl-http-assertions', title: 'Hurl Plaintext HTTP Runner', author: 'Orange-OpenSource', baseStars: 14600, baseVersion: '6.0.0', tags: ['hurl', 'curl', 'http-testing', 'ci-assertions', 'rust'], cmdPrefix: 'brew install hurl && hurl --test api-checks.hurl', repoOrg: 'Orange-OpenSource/hurl', summary: 'Runs and tests HTTP requests defined in a simple plain text format with chained captures, XPath/JSONPath assertions, and timing checks.' },
+  { slug: 'detox-graybox-mobile', title: 'Detox React Native E2E', author: 'wix', baseStars: 11300, baseVersion: '20.34.0', tags: ['detox', 'react-native', 'gray-box-testing', 'mobile-qa', 'synchronization'], cmdPrefix: 'npm install -g detox-cli && detox test', repoOrg: 'wix/Detox', summary: 'Gray-box end-to-end testing and automation framework for mobile apps that monitors async idle states to eliminate flakiness.' },
+  { slug: 'keploy-ebpf-recorder', title: 'Keploy eBPF Test Generator', author: 'keploy', baseStars: 8900, baseVersion: '2.4.1', tags: ['keploy', 'ebpf', 'traffic-replay', 'api-mocks', 'zero-code-qa'], cmdPrefix: 'curl -O https://raw.githubusercontent.com/keploy/keploy/main/install.sh && bash install.sh', repoOrg: 'keploy/keploy', summary: 'Converts real user API traffic into deterministic integration tests and database mocks automatically using eBPF.' },
+  { slug: 'checkly-synthetic-monitoring', title: 'Checkly Monitoring-as-Code', author: 'checkly', baseStars: 6200, baseVersion: '4.13.0', tags: ['checkly', 'synthetics', 'monitoring-as-code', 'playwright', 'uptime'], cmdPrefix: 'npm create checkly@latest && npx checkly test', repoOrg: 'checkly/checkly-cli', summary: 'Monitoring-as-Code workflow uniting Playwright E2E testing and global synthetic API uptime monitoring from your repository.' },
+  { slug: 'osv-scanner-google', title: 'Google OSV-Scanner', author: 'google', baseStars: 7100, baseVersion: '1.9.2', tags: ['osv-scanner', 'vulnerability-db', 'lockfile-audit', 'supply-chain', 'security'], cmdPrefix: 'go install github.com/google/osv-scanner/cmd/osv-scanner@v1 && osv-scanner -r .', repoOrg: 'google/osv-scanner', summary: 'Vulnerability scanner written in Go that matches project lockfiles and container layers against the open OSV database.' },
+];
+
+const DESIGNERS_UI_SEEDS = [
+  { slug: 'shadcn-ui-cli', title: 'shadcn/ui Component CLI', author: 'shadcn-ui', baseStars: 82400, baseVersion: '2.3.0', tags: ['shadcn-ui', 'radix-ui', 'tailwind-components', 'design-system', 'accessibility'], cmdPrefix: 'npx shadcn@latest init && npx shadcn@latest add button dialog', repoOrg: 'shadcn-ui/ui', summary: 'Accessible, copy-and-paste UI component registry built on Radix Primitives and Tailwind CSS that lives in your codebase.' },
+  { slug: 'radix-primitives-ui', title: 'Radix UI Primitives', author: 'radix-ui', baseStars: 16800, baseVersion: '1.1.6', tags: ['radix-ui', 'headless-ui', 'wai-aria', 'keyboard-nav', 'design-primitives'], cmdPrefix: 'npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu', repoOrg: 'radix-ui/primitives', summary: 'Unstyled, accessible low-level UI component primitives with WAI-ARIA compliance, focus management, and screen reader support.' },
+  { slug: 'motion-animation-engine', title: 'Motion (Framer Motion)', author: 'motiondivision', baseStars: 28400, baseVersion: '12.4.7', tags: ['motion', 'framer-motion', 'spring-physics', 'layout-animations', 'gestures'], cmdPrefix: 'npm install motion', repoOrg: 'motiondivision/motion', summary: 'Production-ready web animation library with hardware-accelerated springs, shared layout transitions, and scroll gestures.' },
+  { slug: 'penpot-open-design', title: 'Penpot Open-Source Design', author: 'penpot', baseStars: 36100, baseVersion: '2.4.0', tags: ['penpot', 'open-source-figma', 'css-grid-layout', 'svg-native', 'design-tokens'], cmdPrefix: 'docker compose -p penpot -f docker-compose.yaml up -d', repoOrg: 'penpot/penpot', summary: 'Web-based open-source design and prototyping tool built natively on SVG, CSS Grid, Flexbox, and W3C design tokens.' },
+  { slug: 'style-dictionary-tokens', title: 'Amazon Style Dictionary', author: 'amzn', baseStars: 8900, baseVersion: '4.3.0', tags: ['style-dictionary', 'design-tokens', 'css-variables', 'ios-swift', 'android-xml'], cmdPrefix: 'npm install -D style-dictionary && npx style-dictionary build', repoOrg: 'amzn/style-dictionary', summary: 'Build system for design tokens that exports a single JSON token definition to CSS variables, Tailwind, Swift, and Android XML.' },
+  { slug: 'excalidraw-whiteboard', title: 'Excalidraw Diagram Canvas', author: 'excalidraw', baseStars: 91500, baseVersion: '0.18.0', tags: ['excalidraw', 'wireframing', 'architecture-diagrams', 'hand-drawn', 'canvas'], cmdPrefix: 'npm install react react-dom @excalidraw/excalidraw', repoOrg: 'excalidraw/excalidraw', summary: 'Virtual collaborative whiteboard for sketching hand-drawn system architecture diagrams, UI wireframes, and SVG exports.' },
+  { slug: 'gsap-scrolltrigger', title: 'GSAP & ScrollTrigger', author: 'greensock', baseStars: 21700, baseVersion: '3.12.7', tags: ['gsap', 'scrolltrigger', 'svg-morph', 'timeline-animation', 'webgl-motion'], cmdPrefix: 'npm install gsap @gsap/react', repoOrg: 'greensock/GSAP', summary: 'Industry-standard JavaScript timeline animation suite for choreographing complex SVG, DOM, Canvas, and Three.js motion.' },
+  { slug: 'threejs-webgl-studio', title: 'Three.js 3D WebGL Engine', author: 'mrdoob', baseStars: 104500, baseVersion: '0.173.0', tags: ['threejs', 'webgl', 'webgpu', '3d-graphics', 'shaders'], cmdPrefix: 'npm install three @types/three', repoOrg: 'mrdoob/three.js', summary: 'Cross-browser JavaScript 3D library using WebGL and WebGPU for interactive spatial interfaces, PBR materials, and shaders.' },
+  { slug: 'lottie-web-player', title: 'Lottie Web Vector Motion', author: 'airbnb', baseStars: 30600, baseVersion: '5.12.2', tags: ['lottie', 'after-effects', 'vector-animation', 'svg-motion', 'micro-interactions'], cmdPrefix: 'npm install lottie-web', repoOrg: 'airbnb/lottie-web', summary: 'Parses Adobe After Effects animations exported as JSON with Bodymovin and renders them natively as crisp SVG or Canvas on web.' },
+  { slug: 'sharp-image-pipeline', title: 'Sharp High-Speed Imaging', author: 'lovell', baseStars: 29800, baseVersion: '0.33.5', tags: ['sharp', 'libvips', 'avif-webp', 'image-resizing', 'asset-pipeline'], cmdPrefix: 'npm install sharp', repoOrg: 'lovell/sharp', summary: 'High-performance Node.js image processing powered by libvips to convert large images to WebP and AVIF 5x faster than ImageMagick.' },
+  { slug: 'phosphor-icons-pack', title: 'Phosphor Icons Family', author: 'phosphor-icons', baseStars: 6400, baseVersion: '2.1.7', tags: ['phosphor-icons', '6-weights', 'duotone-icons', 'svg', 'ui-design'], cmdPrefix: 'npm install @phosphor-icons/react', repoOrg: 'phosphor-icons/core', summary: 'Flexible icon family for interfaces, diagrams, and presentations with 6 weights (Thin, Light, Regular, Bold, Fill, Duotone).' },
+  { slug: 'radix-colors-palette', title: 'Radix Colors 12-Step Scale', author: 'radix-ui', baseStars: 5900, baseVersion: '3.0.0', tags: ['radix-colors', 'apca-contrast', 'dark-mode', 'p3-gamut', 'color-system'], cmdPrefix: 'npm install @radix-ui/colors', repoOrg: 'radix-ui/colors', summary: 'Gorgeous, accessible 12-step color system with guaranteed APCA contrast ratios across light mode, dark mode, and P3 wide gamut.' },
+  { slug: 'floating-ui-positioning', title: 'Floating UI Anchoring', author: 'floating-ui', baseStars: 30200, baseVersion: '1.6.13', tags: ['floating-ui', 'tooltips', 'popovers', 'collision-aware', 'dropdowns'], cmdPrefix: 'npm install @floating-ui/dom @floating-ui/react', repoOrg: 'floating-ui/floating-ui', summary: 'Low-level positioning library for tooltips, popovers, dropdowns, and comboboxes with viewport collision avoidance.' },
+  { slug: 'cmdk-command-menu', title: 'cmdk Command Palette', author: 'pacocoursey', baseStars: 10900, baseVersion: '1.0.4', tags: ['cmdk', 'command-palette', 'keyboard-ux', 'fuzzy-search', 'react-ui'], cmdPrefix: 'npm install cmdk', repoOrg: 'pacocoursey/cmdk', summary: 'Fast, composable, unstyled command menu component for React supporting keyboard navigation, nested pages, and instant filtering.' },
+  { slug: 'vaul-drawer-primitive', title: 'Vaul Touch Drawer', author: 'emilkowalski', baseStars: 8100, baseVersion: '1.1.2', tags: ['vaul', 'mobile-drawer', 'bottom-sheet', 'gesture-physics', 'radix'], cmdPrefix: 'npm install vaul', repoOrg: 'emilkowalski/vaul', summary: 'Unstyled drawer component for React with native iOS-style rubberband drag physics, snap points, and background scaling.' },
+  { slug: 'sonner-toast-system', title: 'Sonner Stackable Toasts', author: 'emilkowalski', baseStars: 10200, baseVersion: '2.0.1', tags: ['sonner', 'toast-notifications', 'micro-interactions', 'ui-feedback', 'accessible'], cmdPrefix: 'npm install sonner', repoOrg: 'emilkowalski/sonner', summary: 'Opinionated toast notification component with smooth stacking choreography, swipe-to-dismiss gestures, and promise states.' },
+  { slug: 'satori-og-svg-engine', title: 'Vercel Satori HTML-to-SVG', author: 'vercel', baseStars: 13400, baseVersion: '0.12.0', tags: ['satori', 'og-images', 'html-to-svg', 'social-cards', 'flexbox-layout'], cmdPrefix: 'npm install satori @resvg/resvg-js', repoOrg: 'vercel/satori', summary: 'Enlightened library to convert HTML and CSS Flexbox layouts directly into crisp SVGs and OpenGraph social cards at the edge.' },
+  { slug: 'react-aria-adobe', title: 'Adobe React Aria Components', author: 'adobe', baseStars: 13600, baseVersion: '1.6.0', tags: ['react-aria', 'wcag-compliance', 'internationalization', 'touch-accessible', 'design-system'], cmdPrefix: 'npm install react-aria-components', repoOrg: 'adobe/react-spectrum', summary: 'Library of unstyled React components and hooks implementing adaptive touch/mouse interactions and internationalized accessibility.' },
+  { slug: 'poline-color-generator', title: 'Poline Esoteric Palette', author: 'meodai', baseStars: 4900, baseVersion: '1.9.0', tags: ['poline', 'color-harmonies', 'polar-coordinates', 'generative-design', 'css'], cmdPrefix: 'npm install poline', repoOrg: 'meodai/poline', summary: 'Enigmatic color palette generator that harnesses polar coordinates to produce smooth, natural, non-linear color scales.' },
+];
+
+const GITHUB_PAGES_DOCS_SEEDS = [
+  { slug: 'astro-starlight-docs', title: 'Astro Starlight Docs', author: 'withastro', baseStars: 49100, baseVersion: '0.32.0', tags: ['astro', 'starlight', 'documentation-theme', 'pagefind', 'github-pages'], cmdPrefix: 'npm create astro@latest -- --template starlight', repoOrg: 'withastro/starlight', summary: 'Full-featured documentation framework built on Astro with built-in Pagefind search, i18n, dark mode, and zero-JS static output.' },
+  { slug: 'vitepress-static-docs', title: 'VitePress Static Generator', author: 'vuejs', baseStars: 14300, baseVersion: '1.6.3', tags: ['vitepress', 'markdown-ssg', 'shiki-highlighting', 'static-docs', 'github-pages'], cmdPrefix: 'npm add -D vitepress && npx vitepress init', repoOrg: 'vuejs/vitepress', summary: 'Vite & Vue powered static site generator that turns Markdown files into fast, SPA-navigable documentation sites for GitHub Pages.' },
+  { slug: 'docusaurus-meta-docs', title: 'Docusaurus Documentation', author: 'facebook', baseStars: 57600, baseVersion: '3.7.0', tags: ['docusaurus', 'mdx-docs', 'versioned-docs', 'blog', 'github-pages'], cmdPrefix: 'npx create-docusaurus@latest my-website classic', repoOrg: 'facebook/docusaurus', summary: 'Easy-to-maintain open source documentation websites supporting MDX v3, document versioning, and one-command GitHub Pages deploy.' },
+  { slug: 'mkdocs-material-theme', title: 'Material for MkDocs', author: 'squidfunk', baseStars: 22400, baseVersion: '9.6.5', tags: ['mkdocs-material', 'python-docs', 'technical-writing', 'diagrams', 'github-pages'], cmdPrefix: 'pip install mkdocs-material && mkdocs gh-deploy', repoOrg: 'squidfunk/mkdocs-material', summary: 'Technical documentation framework for MkDocs with native Mermaid diagrams, code annotations, social cards, and instant search.' },
+  { slug: 'fumadocs-nextjs-mdx', title: 'Fumadocs Developer Docs', author: 'fuma-nama', baseStars: 6800, baseVersion: '15.1.0', tags: ['fumadocs', 'openapi-playground', 'mdx', 'twoslash', 'documentation'], cmdPrefix: 'npx create-fumadocs-app', repoOrg: 'fuma-nama/fumadocs', summary: 'Composable documentation framework with TypeScript Twoslash hover inspection, interactive OpenAPI playgrounds, and static export.' },
+  { slug: 'nextra-mdx-site', title: 'Nextra Static Docs & Blog', author: 'shuding', baseStars: 12700, baseVersion: '4.1.0', tags: ['nextra', 'mdx-bundler', 'flexsearch', 'static-export', 'docs'], cmdPrefix: 'npm i next react react-dom nextra nextra-theme-docs', repoOrg: 'shuding/nextra', summary: 'Simple, powerful and flexible site generation framework with file-system routing, built-in FlexSearch, and syntax highlighting.' },
+  { slug: 'hugo-static-engine', title: 'Hugo Blazing Static SSG', author: 'gohugoio', baseStars: 77800, baseVersion: '0.144.0', tags: ['hugo', 'golang-ssg', 'markdown', 'github-pages', 'static-sites'], cmdPrefix: 'brew install hugo && hugo new site quickstart', repoOrg: 'gohugoio/hugo', summary: 'The world’s fastest framework for building static websites, compiling thousands of Markdown pages in under a second.' },
+  { slug: 'eleventy-11ty-ssg', title: 'Eleventy (11ty) Generator', author: '11ty', baseStars: 17900, baseVersion: '3.0.0', tags: ['eleventy', '11ty', 'zero-client-js', 'jamstack', 'github-pages'], cmdPrefix: 'npx @11ty/eleventy --serve', repoOrg: '11ty/eleventy', summary: 'Simpler static site generator transforming templates across Markdown, Liquid, Nunjucks, and WebC with zero client JS by default.' },
+  { slug: 'quartz-digital-garden', title: 'Quartz 4 Digital Garden', author: 'jackyzha0', baseStars: 8700, baseVersion: '4.4.0', tags: ['quartz', 'obsidian-publish', 'wikilinks', 'backlinks', 'github-pages'], cmdPrefix: 'npx quartz create && npx quartz build --serve', repoOrg: 'jackyzha0/quartz', summary: 'Publish your Obsidian vault and interconnected Markdown notes as a free static digital garden with interactive graph views on GitHub Pages.' },
+  { slug: 'pagefind-static-search', title: 'CloudCannon Pagefind', author: 'CloudCannon', baseStars: 4600, baseVersion: '1.3.0', tags: ['pagefind', 'wasm-search', 'static-indexing', 'zero-server', 'github-pages'], cmdPrefix: 'npx pagefind --site dist', repoOrg: 'CloudCannon/pagefind', summary: 'Fully static, low-bandwidth search library powered by WebAssembly that indexes rendered HTML directories without any backend.' },
+  { slug: 'shiki-syntax-highlighter', title: 'Shiki TextMate Highlighter', author: 'shikijs', baseStars: 11200, baseVersion: '2.5.0', tags: ['shiki', 'syntax-highlighting', 'vscode-grammars', 'twoslash', 'markdown'], cmdPrefix: 'npm install -D shiki', repoOrg: 'shikijs/shiki', summary: 'Beautiful and accurate syntax highlighter using VS Code TextMate grammars and themes with zero runtime CSS or JS overhead.' },
+  { slug: 'mermaid-diagram-cli', title: 'Mermaid.js Diagram Engine', author: 'mermaid-js', baseStars: 75400, baseVersion: '11.4.1', tags: ['mermaid', 'sequence-diagrams', 'flowcharts', 'markdown-diagrams', 'docs'], cmdPrefix: 'npm install -g @mermaid-js/mermaid-cli && mmdc -i input.mmd -o output.svg', repoOrg: 'mermaid-js/mermaid', summary: 'Generate flowcharts, sequence diagrams, C4 architecture charts, and Gantt timelines directly from Markdown-inspired text definitions.' },
+  { slug: 'actions-deploy-pages', title: 'GitHub Actions Deploy Pages', author: 'actions', baseStars: 6100, baseVersion: '4.0.5', tags: ['deploy-pages', 'github-actions', 'oidc-deploy', 'artifacts', 'ci-cd'], cmdPrefix: 'uses: actions/deploy-pages@v4', repoOrg: 'actions/deploy-pages', summary: 'Official GitHub Action to deploy static build artifacts directly to GitHub Pages via OIDC without committing to a gh-pages branch.' },
+  { slug: 'release-please-action', title: 'Google Release Please', author: 'googleapis', baseStars: 5700, baseVersion: '16.15.0', tags: ['release-please', 'conventional-commits', 'changelog-pr', 'semver', 'automation'], cmdPrefix: 'uses: googleapis/release-please-action@v4', repoOrg: 'googleapis/release-please-action', summary: 'Automates CHANGELOG generation, GitHub releases, and semantic version bumps by maintaining an automated Release Pull Request.' },
+  { slug: 'scalar-openapi-docs', title: 'Scalar OpenAPI Reference', author: 'scalar', baseStars: 10300, baseVersion: '1.25.0', tags: ['scalar', 'openapi', 'swagger-ui', 'rest-client', 'api-docs'], cmdPrefix: '<script id="api-reference" data-url="./openapi.json"></script><script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>', repoOrg: 'scalar/scalar', summary: 'Modern, interactive OpenAPI / Swagger documentation viewer and embedded REST API playground drop-in script for static sites.' },
+  { slug: 'typst-scientific-docs', title: 'Typst Markup Typesetter', author: 'typst', baseStars: 38200, baseVersion: '0.13.0', tags: ['typst', 'latex-alternative', 'pdf-generation', 'scientific-docs', 'rust'], cmdPrefix: 'brew install typst && typst compile paper.typ', repoOrg: 'typst/typst', summary: 'New markup-based typesetting system written in Rust that compiles technical reports, whitepapers, and PDFs in milliseconds.' },
+  { slug: 'TinaCMS-git-visual', title: 'TinaCMS Visual Git Editor', author: 'tinacms', baseStars: 11900, baseVersion: '2.5.0', tags: ['tinacms', 'visual-editing', 'mdx-cms', 'git-backed', 'static-sites'], cmdPrefix: 'npx @tinacms/cli@latest init', repoOrg: 'tinacms/tinacms', summary: 'Open-source Git-backed headless CMS providing real-time visual inline editing for Markdown, MDX, and JSON static sites.' },
+  { slug: 'umami-privacy-analytics', title: 'Umami Web Analytics', author: 'umami-software', baseStars: 24300, baseVersion: '2.16.0', tags: ['umami', 'privacy-analytics', 'gdpr-compliant', 'telemetry', 'static-pages'], cmdPrefix: '<script defer src="https://cloud.umami.is/script.js" data-website-id="YOUR-ID"></script>', repoOrg: 'umami-software/umami', summary: 'Simple, fast, privacy-focused open-source alternative to Google Analytics for documentation and GitHub Pages websites.' },
+  { slug: 'act-local-github-actions', title: 'nektos/act Local Runner', author: 'nektos', baseStars: 59100, baseVersion: '0.2.74', tags: ['act', 'github-actions-local', 'docker-ci', 'workflow-debugger', 'devops'], cmdPrefix: 'brew install act && act -l', repoOrg: 'nektos/act', summary: 'Run your `.github/workflows` locally in Docker containers for instant CI/CD pipeline debugging without committing and pushing.' },
+];
+
+const VARIANT_MODIFIERS = [
+  { suffixId: '', suffixTitle: '', tagExtra: 'core', descPrefix: '', cmdFlag: '', starRatio: 1.0, versionPatchOffset: 0 },
+  { suffixId: '-github-action', suffixTitle: 'GitHub Action', tagExtra: 'github-actions', descPrefix: 'Automated CI/CD GitHub Action workflow for ', cmdFlag: ' --ci-action', starRatio: 0.72, versionPatchOffset: 1 },
+  { suffixId: '-mcp-server', suffixTitle: 'MCP Server', tagExtra: 'mcp-server', descPrefix: 'Model Context Protocol (MCP) agent bridge for ', cmdFlag: ' --mcp-stdio', starRatio: 0.64, versionPatchOffset: 2 },
+  { suffixId: '-vscode-ext', suffixTitle: 'VS Code Extension', tagExtra: 'vscode', descPrefix: 'Integrated VS Code & Cursor IDE extension for ', cmdFlag: ' --ide-integration', starRatio: 0.81, versionPatchOffset: 3 },
+  { suffixId: '-cli-toolkit', suffixTitle: 'CLI Toolkit', tagExtra: 'cli', descPrefix: 'Cross-platform terminal CLI runner and automation kit for ', cmdFlag: ' --interactive', starRatio: 0.58, versionPatchOffset: 4 },
+  { suffixId: '-cursor-rules', suffixTitle: 'Cursor Rules & Skill', tagExtra: 'cursorrules', descPrefix: 'Pre-configured .cursor/rules and agent skill definitions for ', cmdFlag: ' --rules-sync', starRatio: 0.51, versionPatchOffset: 5 },
+  { suffixId: '-docker-runner', suffixTitle: 'Container Runner', tagExtra: 'docker', descPrefix: 'Hermetic Docker and Devcontainer runtime image for ', cmdFlag: ' --container', starRatio: 0.45, versionPatchOffset: 6 },
+  { suffixId: '-monorepo-plugin', suffixTitle: 'Monorepo Plugin', tagExtra: 'monorepo', descPrefix: 'Workspace-aware monorepo caching and orchestration plugin for ', cmdFlag: ' --workspaces', starRatio: 0.39, versionPatchOffset: 7 },
+  { suffixId: '-sarif-reporter', suffixTitle: 'PR & SARIF Reporter', tagExtra: 'pull-requests', descPrefix: 'Pull request annotation bot and SARIF check-run reporter for ', cmdFlag: ' --format=sarif', starRatio: 0.34, versionPatchOffset: 8 },
+  { suffixId: '-precommit-hook', suffixTitle: 'Pre-Commit Gate', tagExtra: 'pre-commit', descPrefix: 'Zero-latency staged git hook and quality gatekeeper for ', cmdFlag: ' --staged', starRatio: 0.29, versionPatchOffset: 9 },
+];
+
+function bumpVersion(baseVersion, offset) {
+  if (offset === 0) return baseVersion;
+  const parts = String(baseVersion).split('.').map((n) => Number(n) || 0);
+  while (parts.length < 3) parts.push(0);
+  parts[2] += offset;
+  return `${parts[0]}.${parts[1]}.${parts[2]}`;
+}
+
+function computeRating(stars) {
+  if (stars >= 40000) return '5.0';
+  if (stars >= 15000) return '4.9';
+  if (stars >= 8000) return '4.8';
+  return '4.7';
+}
+
+function expandCategoryBlueprints(categoryName, seeds, targetAdditionalCount) {
+  const generated = [];
+  for (let vIdx = 0; vIdx < VARIANT_MODIFIERS.length; vIdx++) {
+    const mod = VARIANT_MODIFIERS[vIdx];
+    for (let sIdx = 0; sIdx < seeds.length; sIdx++) {
+      if (generated.length >= targetAdditionalCount) break;
+      const seed = seeds[sIdx];
+      const id = `${seed.slug}${mod.suffixId}`;
+      const name = mod.suffixTitle ? `${seed.title} — ${mod.suffixTitle}` : seed.title;
+      const loweredSummary = seed.summary.charAt(0).toLowerCase() + seed.summary.slice(1);
+      const description = mod.descPrefix
+        ? `${mod.descPrefix}${seed.title}: ${loweredSummary}`
+        : seed.summary;
+      const deterministicJitter = ((sIdx + 1) * 137 + vIdx * 251) % 900;
+      const stars = Math.max(1200, Math.round(seed.baseStars * mod.starRatio) + deterministicJitter);
+      const version = bumpVersion(seed.baseVersion, mod.versionPatchOffset);
+      const rating = computeRating(stars);
+      const tagSet = new Set(seed.tags);
+      if (mod.tagExtra && mod.tagExtra !== 'core') tagSet.add(mod.tagExtra);
+      const tags = Array.from(tagSet).slice(0, 5);
+      const installCommand = mod.cmdFlag ? `${seed.cmdPrefix}${mod.cmdFlag}` : seed.cmdPrefix;
+      const downloadUrl = `https://github.com/${seed.repoOrg}/releases/latest`;
+      const readme = `# ${name}\n\n**${description}**\n\n## Quick Install\n\n\`\`\`bash\n${installCommand}\n\`\`\`\n\n## Key Capabilities\n\n- Native integration with \`${seed.repoOrg}\` (v${version})\n- Automated workflow support for **${categoryName}** engineering pipelines\n- Tagged with: ${tags.map((t) => `\`#${t}\``).join(', ')}`;
+
+      generated.push({
+        id,
+        name,
+        description,
+        author: seed.author,
+        version,
+        stars,
+        rating,
+        category: categoryName,
+        tags,
+        installCommand,
+        downloadUrl,
+        readme,
+      });
+    }
+  }
+  return generated;
+}
+
+export function generateTop1000Plugins() {
+  return [
+    ...TOP_50_PLUGINS,
+    ...expandCategoryBlueprints('AI & Automation', AI_AUTOMATION_SEEDS, 190),
+    ...expandCategoryBlueprints('Developers', DEVELOPERS_SEEDS, 190),
+    ...expandCategoryBlueprints('Testers & QA', TESTERS_QA_SEEDS, 190),
+    ...expandCategoryBlueprints('Designers & UI', DESIGNERS_UI_SEEDS, 190),
+    ...expandCategoryBlueprints('GitHub Pages & Docs', GITHUB_PAGES_DOCS_SEEDS, 190),
+  ];
+}
+
+export const TOP_1000_PLUGINS = generateTop1000Plugins();
+
+export function paginatePlugins(items, currentPage = 1, pageSize = DEFAULT_PAGE_SIZE) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const totalItems = safeItems.length;
+  if (pageSize <= 0 || !Number.isFinite(pageSize)) {
+    return {
+      items: safeItems,
+      totalItems,
+      currentPage: 1,
+      pageSize: totalItems || 1,
+      totalPages: 1,
+      startIndex: totalItems > 0 ? 1 : 0,
+      endIndex: totalItems,
+      hasMore: false,
+    };
+  }
+  const safeSize = Math.max(1, Math.floor(pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalItems / safeSize));
+  const safePage = Math.min(Math.max(1, Math.floor(currentPage || 1)), totalPages);
+  const offset = (safePage - 1) * safeSize;
+  const sliced = safeItems.slice(offset, offset + safeSize);
+
+  return {
+    items: sliced,
+    totalItems,
+    currentPage: safePage,
+    pageSize: safeSize,
+    totalPages,
+    startIndex: totalItems > 0 ? offset + 1 : 0,
+    endIndex: Math.min(offset + sliced.length, totalItems),
+    hasMore: safePage < totalPages,
+  };
+}
+
 const state = {
-  plugins: [...TOP_50_PLUGINS],
+  plugins: [...TOP_1000_PLUGINS],
   searchQuery: '',
   category: 'All',
   activeTag: null,
   sortBy: 'featured',
+  currentPage: 1,
+  pageSize: DEFAULT_PAGE_SIZE,
   activePluginId: null,
   activeDocsTab: 'readme',
+  comparedPluginIds: [],
   theme: 'dark',
 };
+
+export function toggleComparePlugin(selectedIds, pluginId, max = MAX_COMPARE_PLUGINS) {
+  const cleanId = String(pluginId ?? '').trim();
+  const current = Array.isArray(selectedIds) ? [...selectedIds] : [];
+  if (!cleanId) {
+    return { selectedIds: current, status: 'limit_reached' };
+  }
+  const existingIdx = current.indexOf(cleanId);
+  if (existingIdx >= 0) {
+    current.splice(existingIdx, 1);
+    return { selectedIds: current, status: 'removed' };
+  }
+  if (current.length >= max) {
+    return { selectedIds: current, status: 'limit_reached' };
+  }
+  current.push(cleanId);
+  return { selectedIds: current, status: 'added' };
+}
+
+export function getComparedPlugins(plugins, selectedIds) {
+  if (!Array.isArray(plugins) || !Array.isArray(selectedIds)) return [];
+  const byId = new Map(plugins.map((p) => [p.id, p]));
+  return selectedIds
+    .slice(0, MAX_COMPARE_PLUGINS)
+    .map((id) => byId.get(id))
+    .filter(Boolean);
+}
+
+export function buildComparisonMatrix(comparedPlugins) {
+  const list = Array.isArray(comparedPlugins)
+    ? comparedPlugins.slice(0, MAX_COMPARE_PLUGINS)
+    : [];
+
+  let maxStars = -1;
+  let maxStarsId = null;
+  for (const p of list) {
+    if (typeof p.stars === 'number' && p.stars > maxStars) {
+      maxStars = p.stars;
+      maxStarsId = p.id;
+    }
+  }
+
+  const rows = [
+    {
+      key: 'category',
+      label: 'Category',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.category,
+      })),
+    },
+    {
+      key: 'stars',
+      label: 'Popularity & Stars',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `${Math.floor(p.stars || 0).toLocaleString('en-US')} stars`,
+        isHighestStars: list.length > 1 && p.id === maxStarsId,
+      })),
+    },
+    {
+      key: 'rating',
+      label: 'Community Rating',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `${p.rating || '4.9'} / 5.0`,
+      })),
+    },
+    {
+      key: 'version',
+      label: 'Latest Version',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `v${p.version}`,
+      })),
+    },
+    {
+      key: 'author',
+      label: 'Maintainer',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `@${p.author}`,
+      })),
+    },
+    {
+      key: 'description',
+      label: 'Summary',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.description,
+      })),
+    },
+    {
+      key: 'tags',
+      label: 'Tags & Keywords',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: Array.isArray(p.tags) ? p.tags.map((t) => `#${t}`).join(', ') : '',
+        tags: p.tags || [],
+      })),
+    },
+    {
+      key: 'installCommand',
+      label: 'Install Command',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.installCommand,
+        installCommand: p.installCommand,
+      })),
+    },
+    {
+      key: 'downloadUrl',
+      label: 'Release / Package',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.downloadUrl,
+        downloadUrl: p.downloadUrl,
+      })),
+    },
+  ];
+
+  return {
+    plugins: list,
+    maxStarsId,
+    rows,
+  };
+}
 
 export function normalizeCategoryName(rawCategory) {
   const trimmed = String(rawCategory || '').trim();
@@ -873,6 +1233,10 @@ const ICONS = {
     '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
   moon:
     '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+  columns:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
+  x:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
 };
 
 function escapeHtml(str) {
@@ -1238,6 +1602,11 @@ function renderCategoryFilters() {
 function renderPluginGrid() {
   const grid = document.getElementById('plugin-grid');
   const emptyState = document.getElementById('empty-state');
+  const paginationBar = document.getElementById('pagination-bar');
+  const paginationRangeText = document.getElementById('pagination-range-text');
+  const paginationPageIndicator = document.getElementById('pagination-page-indicator');
+  const prevPageBtn = document.getElementById('prev-page-btn');
+  const nextPageBtn = document.getElementById('next-page-btn');
   const totalMetric = document.getElementById('total-plugins-metric');
   const visibleMetric = document.getElementById('visible-plugins-metric');
   const clearSearchBtn = document.getElementById('clear-search-btn');
@@ -1247,9 +1616,11 @@ function renderPluginGrid() {
   if (!grid || !emptyState) return;
 
   const filtered = filterAndSortPlugins(state.plugins, state);
+  const pageData = paginatePlugins(filtered, state.currentPage, state.pageSize);
+  state.currentPage = pageData.currentPage;
 
-  if (totalMetric) totalMetric.textContent = String(state.plugins.length);
-  if (visibleMetric) visibleMetric.textContent = String(filtered.length);
+  if (totalMetric) totalMetric.textContent = formatStars(state.plugins.length);
+  if (visibleMetric) visibleMetric.textContent = formatStars(filtered.length);
 
   if (clearSearchBtn) {
     clearSearchBtn.classList.toggle('hidden', state.searchQuery.trim().length === 0);
@@ -1270,6 +1641,10 @@ function renderPluginGrid() {
     grid.classList.add('hidden');
     grid.classList.remove('grid');
     emptyState.classList.remove('hidden');
+    if (paginationBar) {
+      paginationBar.classList.add('hidden');
+      paginationBar.classList.remove('flex');
+    }
     return;
   }
 
@@ -1277,8 +1652,26 @@ function renderPluginGrid() {
   grid.classList.remove('hidden');
   grid.classList.add('grid');
 
-  grid.innerHTML = filtered
+  if (paginationBar) {
+    paginationBar.classList.remove('hidden');
+    paginationBar.classList.add('flex');
+  }
+  if (paginationRangeText) {
+    paginationRangeText.textContent = `Showing ${formatStars(pageData.startIndex)}–${formatStars(pageData.endIndex)} of ${formatStars(pageData.totalItems)} assets`;
+  }
+  if (paginationPageIndicator) {
+    paginationPageIndicator.textContent = `Page ${pageData.currentPage} of ${pageData.totalPages}`;
+  }
+  if (prevPageBtn) {
+    prevPageBtn.disabled = pageData.currentPage <= 1;
+  }
+  if (nextPageBtn) {
+    nextPageBtn.disabled = pageData.currentPage >= pageData.totalPages;
+  }
+
+  grid.innerHTML = pageData.items
     .map((plugin, idx) => {
+      const globalRank = (pageData.currentPage - 1) * pageData.pageSize + idx + 1;
       const tagsMarkup = Array.isArray(plugin.tags)
         ? plugin.tags
             .map(
@@ -1304,11 +1697,19 @@ function renderPluginGrid() {
           >Most Popular</span>`
         : '';
 
+      const isCompared = state.comparedPluginIds.includes(plugin.id);
+      const cardBorderClasses = isCompared
+        ? 'border-indigo-500 dark:border-indigo-500 ring-1 ring-indigo-500/40'
+        : 'border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 dark:hover:border-indigo-500/40';
+      const compareBtnClasses = isCompared
+        ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-500/15 border border-indigo-500/40 font-semibold'
+        : 'text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium';
+
       return `
         <article
           id="plugin-${escapeHtml(plugin.id)}"
           data-plugin-card="${escapeHtml(plugin.id)}"
-          class="flex flex-col justify-between p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-500/40 dark:hover:border-indigo-500/40 transition-colors space-y-5"
+          class="flex flex-col justify-between p-6 rounded-xl border ${cardBorderClasses} bg-white dark:bg-slate-900 transition-colors space-y-5"
         >
           <div class="space-y-3">
             <!-- Category Badge & Popularity Rating / Stars Badge -->
@@ -1339,7 +1740,7 @@ function renderPluginGrid() {
             <div class="space-y-1.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                  <span class="font-mono text-xs font-normal text-slate-400 dark:text-slate-500 mr-1.5">#${idx + 1}</span>${escapeHtml(plugin.name)}
+                  <span class="font-mono text-xs font-normal text-slate-400 dark:text-slate-500 mr-1.5">#${globalRank}</span>${escapeHtml(plugin.name)}
                 </h2>
                 ${popularBadgeMarkup}
               </div>
@@ -1387,6 +1788,18 @@ function renderPluginGrid() {
 
                 <button
                   type="button"
+                  data-action="toggle-compare"
+                  data-plugin-id="${escapeHtml(plugin.id)}"
+                  aria-pressed="${isCompared ? 'true' : 'false'}"
+                  aria-label="Compare ${escapeHtml(plugin.name)}"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${compareBtnClasses}"
+                >
+                  <span class="pointer-events-none" aria-hidden="true">${isCompared ? ICONS.check : ICONS.columns}</span>
+                  <span data-compare-label>${isCompared ? 'Comparing' : 'Compare'}</span>
+                </button>
+
+                <button
+                  type="button"
                   data-action="share-plugin"
                   data-plugin-id="${escapeHtml(plugin.id)}"
                   aria-label="Share deep-link URL for ${escapeHtml(plugin.name)}"
@@ -1414,9 +1827,261 @@ function renderPluginGrid() {
     })
     .join('');
 
+  renderCompareUI();
+
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
+}
+
+/**
+ * Updates the header Compare counter, sticky bottom Compare Tray, and Compare Modal table.
+ */
+function renderCompareUI() {
+  const comparedPlugins = getComparedPlugins(state.plugins, state.comparedPluginIds);
+  const count = comparedPlugins.length;
+
+  const headerCountEl = document.getElementById('header-compare-count');
+  if (headerCountEl) {
+    headerCountEl.textContent = `(${count}/${MAX_COMPARE_PLUGINS})`;
+  }
+
+  const tray = document.getElementById('compare-tray');
+  const trayBadge = document.getElementById('compare-tray-badge');
+  const trayCount = document.getElementById('compare-count');
+  const trayItems = document.getElementById('compare-tray-items');
+  const openCompareBtn = document.getElementById('open-compare-modal-btn');
+
+  if (trayBadge) trayBadge.textContent = String(count);
+  if (trayCount) trayCount.textContent = String(count);
+  if (openCompareBtn) {
+    openCompareBtn.textContent = `Compare Side-by-Side (${count})`;
+  }
+
+  if (tray) {
+    if (count > 0) {
+      tray.classList.remove('hidden');
+    } else {
+      tray.classList.add('hidden');
+    }
+  }
+
+  if (trayItems) {
+    const slots = [];
+    for (let i = 0; i < MAX_COMPARE_PLUGINS; i++) {
+      const p = comparedPlugins[i];
+      if (p) {
+        slots.push(`
+          <div
+            data-testid="compare-slot-${escapeHtml(p.id)}"
+            class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-xs font-medium text-slate-900 dark:text-slate-100"
+          >
+            <span class="truncate max-w-[140px]">${escapeHtml(p.name)}</span>
+            <button
+              type="button"
+              data-remove-compare="${escapeHtml(p.id)}"
+              aria-label="Remove ${escapeHtml(p.name)} from comparison"
+              class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
+            >
+              ${ICONS.x}
+            </button>
+          </div>
+        `);
+      } else {
+        slots.push(`
+          <div class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 text-[11px] font-mono text-slate-400 dark:text-slate-500">
+            Slot ${i + 1}: Empty
+          </div>
+        `);
+      }
+    }
+    trayItems.innerHTML = slots.join('');
+  }
+
+  renderComparisonTable();
+}
+
+/**
+ * Renders the side-by-side comparison table inside #compare-table-container.
+ */
+function renderComparisonTable() {
+  const container = document.getElementById('compare-table-container');
+  const subtitleEl = document.getElementById('compare-modal-subtitle');
+  if (!container) return;
+
+  const comparedPlugins = getComparedPlugins(state.plugins, state.comparedPluginIds);
+  if (subtitleEl) {
+    subtitleEl.textContent = `Side-by-Side Matrix · ${comparedPlugins.length} of ${MAX_COMPARE_PLUGINS} Plugins Selected`;
+  }
+
+  if (comparedPlugins.length === 0) {
+    container.innerHTML = `
+      <div class="p-12 text-center space-y-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+        <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+          No Plugins Selected for Comparison
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          Click the <strong>Compare</strong> button on up to 3 plugin cards in the directory to evaluate their ratings, stars, categories, tags, and install snippets side by side.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  const matrix = buildComparisonMatrix(comparedPlugins);
+
+  const headerCols = matrix.plugins
+    .map(
+      (p) => `
+      <th scope="col" class="py-4 px-5 align-top border-b border-l border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 min-w-[240px]">
+        <div class="space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="inline-block text-[11px] font-mono text-indigo-600 dark:text-indigo-400">${escapeHtml(p.category)}</span>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(p.name)}</h3>
+            </div>
+            <button
+              type="button"
+              data-remove-compare="${escapeHtml(p.id)}"
+              aria-label="Remove ${escapeHtml(p.name)} from comparison"
+              class="px-2 py-1 text-[11px] font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md transition-colors cursor-pointer shrink-0"
+            >
+              Remove
+            </button>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <button
+              type="button"
+              data-compare-docs="${escapeHtml(p.id)}"
+              class="px-2.5 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md transition-colors cursor-pointer"
+            >
+              View / Install
+            </button>
+            <button
+              type="button"
+              data-compare-copy="${escapeHtml(p.id)}"
+              class="px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors cursor-pointer"
+            >
+              Copy CLI
+            </button>
+          </div>
+        </div>
+      </th>
+    `
+    )
+    .join('');
+
+  const bodyRowsHtml = matrix.rows
+    .map((row) => {
+      const cellsHtml = row.values
+        .map((cell) => {
+          if (row.key === 'stars') {
+            const topBadge = cell.isHighestStars
+              ? `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">Highest Stars</span>`
+              : '';
+            return `
+              <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400 tabular-nums">
+                <span>★ ${escapeHtml(cell.displayValue)}</span>${topBadge}
+              </td>
+            `;
+          }
+
+          if (row.key === 'rating') {
+            return `
+              <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800 font-mono text-xs text-slate-800 dark:text-slate-200 tabular-nums">
+                ★ ${escapeHtml(cell.displayValue)}
+              </td>
+            `;
+          }
+
+          if (row.key === 'tags' && Array.isArray(cell.tags)) {
+            const tagsPills = cell.tags
+              .map(
+                (t) =>
+                  `<span class="inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[11px] text-slate-600 dark:text-slate-300">#${escapeHtml(t)}</span>`
+              )
+              .join(' ');
+            return `
+              <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800">
+                <div class="flex flex-wrap gap-1.5">${tagsPills}</div>
+              </td>
+            `;
+          }
+
+          if (row.key === 'installCommand') {
+            return `
+              <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800">
+                <code class="block p-2 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-[11px] text-slate-800 dark:text-slate-200 overflow-x-auto">${escapeHtml(cell.displayValue)}</code>
+              </td>
+            `;
+          }
+
+          if (row.key === 'downloadUrl') {
+            return `
+              <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800 text-xs">
+                <a
+                  href="${escapeHtml(cell.displayValue)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  <span>Open Release Page</span>
+                </a>
+              </td>
+            `;
+          }
+
+          return `
+            <td class="py-3.5 px-5 border-b border-l border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              ${escapeHtml(cell.displayValue)}
+            </td>
+          `;
+        })
+        .join('');
+
+      return `
+        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+          <th scope="row" class="py-3.5 px-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/30 text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap w-44">
+            ${escapeHtml(row.label)}
+          </th>
+          ${cellsHtml}
+        </tr>
+      `;
+    })
+    .join('');
+
+  container.innerHTML = `
+    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <table data-testid="comparison-table" class="w-full text-left border-collapse">
+        <thead>
+          <tr>
+            <th scope="col" class="py-4 px-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 w-44">
+              Property
+            </th>
+            ${headerCols}
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyRowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openCompareModal() {
+  const modal = document.getElementById('compare-modal');
+  if (!modal) return;
+  renderComparisonTable();
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeCompareModal() {
+  const modal = document.getElementById('compare-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
 }
 
 /**
@@ -1597,7 +2262,7 @@ async function loadPlugins() {
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
 
-  state.plugins = [...TOP_50_PLUGINS];
+  state.plugins = [...TOP_1000_PLUGINS];
   if (loadingState) loadingState.classList.add('hidden');
   if (errorState) errorState.classList.add('hidden');
 
@@ -1615,7 +2280,7 @@ async function loadPlugins() {
       }
     }
   } catch {
-    // Fallback to hardcoded TOP_50_PLUGINS already active
+    // Fallback to TOP_1000_PLUGINS already active
   }
 
   if (typeof window !== 'undefined' && window.location) {
@@ -1650,12 +2315,14 @@ function initApp() {
   const searchInput = document.getElementById('plugin-search');
   searchInput?.addEventListener('input', (e) => {
     state.searchQuery = e.target.value || '';
+    state.currentPage = 1;
     renderPluginGrid();
   });
 
   const clearSearchBtn = document.getElementById('clear-search-btn');
   clearSearchBtn?.addEventListener('click', () => {
     state.searchQuery = '';
+    state.currentPage = 1;
     if (searchInput) {
       searchInput.value = '';
       searchInput.focus();
@@ -1666,7 +2333,32 @@ function initApp() {
   const sortSelect = document.getElementById('plugin-sort');
   sortSelect?.addEventListener('change', (e) => {
     state.sortBy = e.target.value || 'featured';
+    state.currentPage = 1;
     renderPluginGrid();
+  });
+
+  const pageSizeSelect = document.getElementById('page-size-select');
+  pageSizeSelect?.addEventListener('change', (e) => {
+    const val = Number(e.target.value);
+    state.pageSize = Number.isFinite(val) && val > 0 ? val : DEFAULT_PAGE_SIZE;
+    state.currentPage = 1;
+    renderPluginGrid();
+  });
+
+  const prevPageBtn = document.getElementById('prev-page-btn');
+  prevPageBtn?.addEventListener('click', () => {
+    if (state.currentPage > 1) {
+      state.currentPage -= 1;
+      renderPluginGrid();
+      document.getElementById('directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  const nextPageBtn = document.getElementById('next-page-btn');
+  nextPageBtn?.addEventListener('click', () => {
+    state.currentPage += 1;
+    renderPluginGrid();
+    document.getElementById('directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   const categoryContainer = document.getElementById('category-filters');
@@ -1674,6 +2366,7 @@ function initApp() {
     const btn = e.target.closest('button[data-category]');
     if (!btn) return;
     state.category = btn.getAttribute('data-category') || 'All';
+    state.currentPage = 1;
     renderCategoryFilters();
     renderPluginGrid();
   });
@@ -1681,6 +2374,7 @@ function initApp() {
   const clearTagBtn = document.getElementById('clear-tag-btn');
   clearTagBtn?.addEventListener('click', () => {
     state.activeTag = null;
+    state.currentPage = 1;
     renderPluginGrid();
   });
 
@@ -1690,6 +2384,7 @@ function initApp() {
     state.category = 'All';
     state.activeTag = null;
     state.sortBy = 'featured';
+    state.currentPage = 1;
     if (searchInput) searchInput.value = '';
     if (sortSelect) sortSelect.value = 'featured';
     renderCategoryFilters();
@@ -1707,6 +2402,7 @@ function initApp() {
     if (tagBtn) {
       const clickedTag = tagBtn.getAttribute('data-tag');
       state.activeTag = state.activeTag === clickedTag ? null : clickedTag;
+      state.currentPage = 1;
       renderPluginGrid();
       return;
     }
@@ -1749,6 +2445,25 @@ function initApp() {
         }, 1800);
       }
       showToast(`Copied ${plugin.name} deep-link URL`, deepLinkUrl);
+    } else if (action === 'toggle-compare') {
+      const result = toggleComparePlugin(state.comparedPluginIds, plugin.id, MAX_COMPARE_PLUGINS);
+      if (result.status === 'limit_reached') {
+        showToast(
+          `Maximum of ${MAX_COMPARE_PLUGINS} plugins can be compared`,
+          'Remove a selected plugin before adding another.'
+        );
+        return;
+      }
+      state.comparedPluginIds = result.selectedIds;
+      renderPluginGrid();
+      if (result.status === 'added') {
+        showToast(
+          `Added ${plugin.name} to comparison (${state.comparedPluginIds.length}/${MAX_COMPARE_PLUGINS})`,
+          'Click "Compare Side-by-Side" to view the comparison table.'
+        );
+      } else {
+        showToast(`Removed ${plugin.name} from comparison`);
+      }
     }
   });
 
@@ -1866,10 +2581,73 @@ function initApp() {
     if (e.target === submitModal) closeSubmitModal();
   });
 
+  // Compare Tray & Compare Modal Handlers
+  document.getElementById('header-compare-btn')?.addEventListener('click', openCompareModal);
+  document.getElementById('open-compare-modal-btn')?.addEventListener('click', openCompareModal);
+  document.getElementById('close-compare-modal-btn')?.addEventListener('click', closeCompareModal);
+  document.getElementById('footer-close-compare-btn')?.addEventListener('click', closeCompareModal);
+
+  const clearCompareSelection = () => {
+    state.comparedPluginIds = [];
+    renderPluginGrid();
+    showToast('Cleared plugin comparison list');
+  };
+
+  document.getElementById('clear-compare-btn')?.addEventListener('click', clearCompareSelection);
+  document.getElementById('modal-clear-compare-btn')?.addEventListener('click', clearCompareSelection);
+
+  document.getElementById('compare-tray')?.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('button[data-remove-compare]');
+    if (!removeBtn) return;
+    const id = removeBtn.getAttribute('data-remove-compare');
+    if (!id) return;
+    state.comparedPluginIds = state.comparedPluginIds.filter((item) => item !== id);
+    renderPluginGrid();
+  });
+
+  const compareModal = document.getElementById('compare-modal');
+  compareModal?.addEventListener('click', async (e) => {
+    if (e.target === compareModal) {
+      closeCompareModal();
+      return;
+    }
+
+    const removeBtn = e.target.closest('button[data-remove-compare]');
+    if (removeBtn) {
+      const id = removeBtn.getAttribute('data-remove-compare');
+      if (id) {
+        state.comparedPluginIds = state.comparedPluginIds.filter((item) => item !== id);
+        renderPluginGrid();
+      }
+      return;
+    }
+
+    const docsBtn = e.target.closest('button[data-compare-docs]');
+    if (docsBtn) {
+      const id = docsBtn.getAttribute('data-compare-docs');
+      if (id) {
+        closeCompareModal();
+        openDocsModal(id);
+      }
+      return;
+    }
+
+    const copyBtn = e.target.closest('button[data-compare-copy]');
+    if (copyBtn) {
+      const id = copyBtn.getAttribute('data-compare-copy');
+      const plugin = state.plugins.find((p) => p.id === id);
+      if (plugin) {
+        await copyToClipboard(plugin.installCommand);
+        showToast(`Copied ${plugin.name} install command`, plugin.installCommand);
+      }
+    }
+  });
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDocsModal();
       closeSubmitModal();
+      closeCompareModal();
       return;
     }
     if (

@@ -1203,3 +1203,224 @@ export function buildContributorPluginJson(input: Partial<PluginItem>): string {
 
   return JSON.stringify(normalized, null, 2);
 }
+
+export const MAX_COMPARE_PLUGINS = 3;
+
+export interface CompareToggleResult {
+  selectedIds: string[];
+  status: 'added' | 'removed' | 'limit_reached';
+}
+
+export function toggleComparePlugin(
+  selectedIds: string[],
+  pluginId: string,
+  max: number = MAX_COMPARE_PLUGINS
+): CompareToggleResult {
+  const cleanId = String(pluginId ?? '').trim();
+  const current = Array.isArray(selectedIds) ? [...selectedIds] : [];
+  if (!cleanId) {
+    return { selectedIds: current, status: 'limit_reached' };
+  }
+
+  const existingIdx = current.indexOf(cleanId);
+  if (existingIdx >= 0) {
+    current.splice(existingIdx, 1);
+    return { selectedIds: current, status: 'removed' };
+  }
+
+  if (current.length >= max) {
+    return { selectedIds: current, status: 'limit_reached' };
+  }
+
+  current.push(cleanId);
+  return { selectedIds: current, status: 'added' };
+}
+
+export function getComparedPlugins(
+  plugins: PluginItem[],
+  selectedIds: string[]
+): PluginItem[] {
+  if (!Array.isArray(plugins) || !Array.isArray(selectedIds)) return [];
+  const byId = new Map(plugins.map((p) => [p.id, p]));
+  return selectedIds
+    .slice(0, MAX_COMPARE_PLUGINS)
+    .map((id) => byId.get(id))
+    .filter((p): p is PluginItem => Boolean(p));
+}
+
+export interface ComparisonRow {
+  key: string;
+  label: string;
+  values: {
+    pluginId: string;
+    displayValue: string;
+    isHighestStars?: boolean;
+    tags?: string[];
+    installCommand?: string;
+    downloadUrl?: string;
+  }[];
+}
+
+export function buildComparisonMatrix(comparedPlugins: PluginItem[]): {
+  plugins: PluginItem[];
+  maxStarsId: string | null;
+  rows: ComparisonRow[];
+} {
+  const list = Array.isArray(comparedPlugins)
+    ? comparedPlugins.slice(0, MAX_COMPARE_PLUGINS)
+    : [];
+
+  let maxStars = -1;
+  let maxStarsId: string | null = null;
+  for (const p of list) {
+    if (typeof p.stars === 'number' && p.stars > maxStars) {
+      maxStars = p.stars;
+      maxStarsId = p.id;
+    }
+  }
+
+  const rows: ComparisonRow[] = [
+    {
+      key: 'category',
+      label: 'Category',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.category,
+      })),
+    },
+    {
+      key: 'stars',
+      label: 'Popularity & Stars',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `${Math.floor(p.stars || 0).toLocaleString('en-US')} stars`,
+        isHighestStars: list.length > 1 && p.id === maxStarsId,
+      })),
+    },
+    {
+      key: 'rating',
+      label: 'Community Rating',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `${p.rating || '4.9'} / 5.0`,
+      })),
+    },
+    {
+      key: 'version',
+      label: 'Latest Version',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `v${p.version}`,
+      })),
+    },
+    {
+      key: 'author',
+      label: 'Maintainer',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: `@${p.author}`,
+      })),
+    },
+    {
+      key: 'description',
+      label: 'Summary',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.description,
+      })),
+    },
+    {
+      key: 'tags',
+      label: 'Tags & Keywords',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.tags.map((t) => `#${t}`).join(', '),
+        tags: p.tags,
+      })),
+    },
+    {
+      key: 'installCommand',
+      label: 'Install Command',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.installCommand,
+        installCommand: p.installCommand,
+      })),
+    },
+    {
+      key: 'downloadUrl',
+      label: 'Release / Package',
+      values: list.map((p) => ({
+        pluginId: p.id,
+        displayValue: p.downloadUrl,
+        downloadUrl: p.downloadUrl,
+      })),
+    },
+  ];
+
+  return {
+    plugins: list,
+    maxStarsId,
+    rows,
+  };
+}
+
+import { generateTop1000Plugins as buildTop1000 } from './top1000Catalog';
+
+export function generateTop1000Plugins(): PluginItem[] {
+  return buildTop1000(TOP_50_PLUGINS);
+}
+
+export const TOP_1000_PLUGINS: PluginItem[] = generateTop1000Plugins();
+
+export const DEFAULT_PAGE_SIZE = 24;
+
+export interface PaginationSlice<T> {
+  items: T[];
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  startIndex: number;
+  endIndex: number;
+  hasMore: boolean;
+}
+
+export function paginatePlugins<T>(
+  items: T[],
+  currentPage: number = 1,
+  pageSize: number = DEFAULT_PAGE_SIZE
+): PaginationSlice<T> {
+  const safeItems = Array.isArray(items) ? items : [];
+  const totalItems = safeItems.length;
+  if (pageSize <= 0 || !Number.isFinite(pageSize)) {
+    return {
+      items: safeItems,
+      totalItems,
+      currentPage: 1,
+      pageSize: totalItems || 1,
+      totalPages: 1,
+      startIndex: totalItems > 0 ? 1 : 0,
+      endIndex: totalItems,
+      hasMore: false,
+    };
+  }
+  const safeSize = Math.max(1, Math.floor(pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalItems / safeSize));
+  const safePage = Math.min(Math.max(1, Math.floor(currentPage || 1)), totalPages);
+  const offset = (safePage - 1) * safeSize;
+  const sliced = safeItems.slice(offset, offset + safeSize);
+
+  return {
+    items: sliced,
+    totalItems,
+    currentPage: safePage,
+    pageSize: safeSize,
+    totalPages,
+    startIndex: totalItems > 0 ? offset + 1 : 0,
+    endIndex: Math.min(offset + sliced.length, totalItems),
+    hasMore: safePage < totalPages,
+  };
+}
+
+
