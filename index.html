@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ForgeHub — Static Plugin Marketplace & Registry</title>
+    <title>AI Assets Hub</title>
     <meta
       name="description"
-      content="Zero-build-step, data-driven developer plugin marketplace and registry powered by Vanilla ES6+, Tailwind CSS, Lucide Icons, and a single plugins.json schema for GitHub Pages."
+      content="The ultimate curated marketplace of 50 essential plugins, AI tools, and integrations for Developers, Designers, QA Testers, and DevOps Engineers."
     />
-    <meta property="og:title" content="ForgeHub — Static Plugin Marketplace & Registry" />
+    <meta property="og:title" content="AI Assets Hub" />
     <meta
       property="og:description"
-      content="Zero-build-step, data-driven developer plugin marketplace and registry powered by Vanilla ES6+, Tailwind CSS, Lucide Icons, and a single plugins.json schema for GitHub Pages."
+      content="The ultimate curated marketplace of 50 essential plugins, AI tools, and integrations for Developers, Designers, QA Testers, and DevOps Engineers."
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -58,7 +58,7 @@
           href="#directory"
           class="text-lg font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
         >
-          ForgeHub
+          AI Assets Hub
         </a>
 
         <!-- Zone 2: 4 concise single-line navigation links -->
@@ -110,23 +110,23 @@
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800/80">
           <div class="space-y-3 max-w-3xl">
             <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 tracking-wide">
-              Static Registry · Zero Build Pipeline · Single Manifest Architecture
+              Curated Marketplace · Top 50 Essential Plugins · AI Tools &amp; Integrations
             </p>
             <h1
               class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight"
               style="text-wrap: balance;"
             >
-              Developer Plugin Marketplace for GitHub Pages
+              AI Assets Hub
             </h1>
             <p class="text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
-              Browse, inspect, and install community-curated developer extensions. Every listing is dynamically hydrated at runtime from a single repository-hosted <code class="font-mono text-xs text-slate-800 dark:text-slate-200">plugins.json</code> manifest.
+              The ultimate curated marketplace of 50 essential plugins, AI tools, and integrations for Developers, Designers, QA Testers, and DevOps Engineers.
             </p>
           </div>
 
           <!-- Workspace Utility Controls (Theme Switch & Catalog Metrics) -->
           <div class="flex items-center gap-4 shrink-0 self-start lg:self-end">
             <div class="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
-              <span id="total-plugins-metric">12</span> registered plugins · <span id="visible-plugins-metric">12</span> shown
+              <span id="total-plugins-metric">50</span> registered plugins · <span id="visible-plugins-metric">50</span> shown
             </div>
             <span class="text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
             <button
@@ -201,7 +201,12 @@
               aria-label="Filter plugins by category"
               class="inline-flex flex-wrap items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg"
             >
-              <!-- Populated dynamically by app.js -->
+              <button type="button" data-category="All" aria-pressed="true" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-semibold"><span>All</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(50)</span></button>
+              <button type="button" data-category="Developers" aria-pressed="false" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"><span>Developers</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(10)</span></button>
+              <button type="button" data-category="Testers &amp; QA" aria-pressed="false" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"><span>Testers &amp; QA</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(10)</span></button>
+              <button type="button" data-category="Designers &amp; UI" aria-pressed="false" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"><span>Designers &amp; UI</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(10)</span></button>
+              <button type="button" data-category="AI &amp; Automation" aria-pressed="false" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"><span>AI &amp; Automation</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(10)</span></button>
+              <button type="button" data-category="GitHub Pages &amp; Docs" aria-pressed="false" class="px-3 py-1.5 text-xs rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"><span>GitHub Pages &amp; Docs</span><span class="ml-1 font-mono text-[11px] opacity-80 tabular-nums">(10)</span></button>
             </div>
 
             <!-- Active Tag Filter Status -->
@@ -309,7 +314,7 @@
               01. Single-File Manifest Schema (<code class="font-mono text-xl text-indigo-600 dark:text-indigo-400">plugins.json</code>)
             </h2>
             <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-              Every card, install snippet, and documentation modal in ForgeHub is generated directly from objects in <code class="font-mono text-xs">plugins.json</code>. Contributors add plugins by appending an object with these eleven required properties.
+              Every card, install snippet, and documentation modal in AI Assets Hub is generated directly from objects in <code class="font-mono text-xs">plugins.json</code>. Contributors add plugins by appending an object with these required properties.
             </p>
           </div>
           <button
@@ -371,7 +376,7 @@
               <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                 <td class="py-3 px-4 font-mono font-medium text-indigo-600 dark:text-indigo-400">category</td>
                 <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">string</td>
-                <td class="py-3 px-4 text-slate-500"><code class="font-mono">Automation | UI | CLI | API</code></td>
+                <td class="py-3 px-4 text-slate-500"><code class="font-mono">Developers | Testers &amp; QA | Designers &amp; UI | AI &amp; Automation | GitHub Pages &amp; Docs</code></td>
                 <td class="py-3 px-4 text-slate-700 dark:text-slate-300">Primary taxonomy bucket mapped to the top category filter bar.</td>
               </tr>
               <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
@@ -443,7 +448,7 @@
     <!-- Quiet Footer -->
     <footer class="mt-20 border-t border-slate-200 dark:border-slate-800/80 py-8">
       <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <p>ForgeHub Static Plugin Registry · Built for GitHub Pages with Vanilla ES6+ &amp; Tailwind CSS</p>
+        <p>AI Assets Hub · Top 50 Curated Plugins for Developers, Designers, QA Testers &amp; DevOps Engineers</p>
         <div class="flex items-center gap-4">
           <a href="#directory" class="hover:text-slate-900 dark:hover:text-white transition-colors">Directory</a>
           <span aria-hidden="true">·</span>
@@ -735,10 +740,11 @@
                     id="contrib-category"
                     class="w-full px-3 py-2 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option value="Automation">Automation</option>
-                    <option value="UI">UI</option>
-                    <option value="CLI">CLI</option>
-                    <option value="API" selected>API</option>
+                    <option value="AI &amp; Automation" selected>AI &amp; Automation</option>
+                    <option value="Developers">Developers</option>
+                    <option value="Testers &amp; QA">Testers &amp; QA</option>
+                    <option value="Designers &amp; UI">Designers &amp; UI</option>
+                    <option value="GitHub Pages &amp; Docs">GitHub Pages &amp; Docs</option>
                   </select>
                 </div>
               </div>
